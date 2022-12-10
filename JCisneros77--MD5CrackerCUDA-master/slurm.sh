@@ -9,6 +9,6 @@
 
 module load nvidia/cuda
 
-nvcc main.cu md5.cu bigInt.cu utility.cu SHA1.cu -Xcompiler -O3 -Xcompiler -Wall -Xptxas -O3 -o cracker
+nvcc md5LibGPU.cu md5CrackerGPU.cu -Xcompiler -O3 -Xcompiler -Wall -Xptxas -O3 -o cracker
 
 
