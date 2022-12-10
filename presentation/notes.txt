@@ -1,0 +1,5 @@
+NIST
+
+MD5:  340 Dudecillion
+
+SHA1: 1.5 Quindecillion

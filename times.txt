@@ -1,0 +1,17 @@
+Speedup GTX 480: 270
+cpu:    37.5 s
+GTX 480: 0.14s
+
+
+GTX 680:
+MD5:  5 letters:  4.710s
+SHA1: 5 letters: 53.0s
+MD5:  228  MH/s
+SHA1: 20.3 MH/s
+
+Titan:
+MD5: 5 Letters: 6.103s
+
+ 32-128: 5.68
+ 64- 64: 5.72
+128- 32: 5.85

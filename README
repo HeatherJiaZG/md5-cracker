@@ -1,0 +1,7 @@
+About this project
+
+This was done as a project in a two week course on CUDA programming. It is quite basic code experimenting with various features of CUDA.
+
+It doesn't have the performance of any serious code but should be easy to understand.
+
+All code was written by myself only using modifications on reference implementations of md5 and sha-1
