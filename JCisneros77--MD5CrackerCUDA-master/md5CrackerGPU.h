@@ -26,6 +26,6 @@ extern float totalTime;
 // __device__ void MD5Init (MD5_CTX * mdContext);
 // __device__ void MD5Update (MD5_CTX * mdContext, unsigned char * inBuf, unsigned int inLen);
 // __device__ void MD5Final (MD5_CTX * mdContext);
-int callMD5CUDA(struct deviceInfo *,char *, int *,int *, int,int *);
+extern int callMD5CUDA(struct deviceInfo *,char *, int *,int *, int,int *);
 
 #endif
