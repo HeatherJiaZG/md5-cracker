@@ -292,9 +292,9 @@ __global__ static void MDString (char * words,int * hash_found,int * target_hash
       // MD5 cracked
       // Print word
 
-      printf("[DEBUG] inString=%s\n", inString);
+      printf("[DEBUG] inString=%s\n", uInString);
       printf("[DEBUG] flag_same=%d\n", flag_same);
-      printf("-------------MD5 Cracked!-------------\nWord: %s\n--------------------------------------\n",inString);
+      printf("-------------MD5 Cracked!-------------\nWord: %s\n--------------------------------------\n",uInString);
       // Change flag to True and break cycle
       hash_found[0] = 1;
     }
