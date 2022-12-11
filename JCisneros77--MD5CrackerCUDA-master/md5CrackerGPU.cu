@@ -1,9 +1,13 @@
+#include <cstdio>
 #include <stdio.h>
+#include <iostream>
 #include <cuda.h>
 #include <string.h>
 #include <arpa/inet.h>
 #include "md5LibGPU.cu"
 #include "md5CrackerGPU.cuh"
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 #include <ctype.h>
 
 #define WORD_SIZE 64
@@ -82,7 +86,7 @@ int main(int argc, char ** argv){
 				// MD5 was not found.
 				if (numberOfWords == 0){
 					// Set flag to 0 to stop looking in file
-					printf("Wasn't able to crack MD5\n");
+					std::printf("Wasn't able to crack MD5\n");
 					flagCycle = 0;
 				}
 				break;
@@ -138,7 +142,7 @@ int main(int argc, char ** argv){
 		}
 	}
 	// Print total time
-	printf("Total Time: %f ms\n",totalTime);
+	std::printf("Total Time: %f ms\n",totalTime);
 	// Close word list file
 	fclose(wordListFile);
 	return 0;

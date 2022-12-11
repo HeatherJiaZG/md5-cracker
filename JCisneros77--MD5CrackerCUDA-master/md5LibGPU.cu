@@ -12,7 +12,8 @@
  **********************************************************************
  */
 #include "md5CrackerGPU.cuh"
-
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 
 /* F, G and H are basic MD5 functions: selection, majority, parity */
 #define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
@@ -285,7 +286,7 @@ __global__ static void MDString (char * words,int * hash_found,int * target_hash
     if (flag_same == 1){
       // MD5 cracked
       // Print word
-      printf("-------------MD5 Cracked!-------------\nWord: %s\n--------------------------------------\n",inString);
+      std::printf("-------------MD5 Cracked!-------------\nWord: %s\n--------------------------------------\n",inString);
       // Change flag to True and break cycle
       hash_found[0] = 1;
     }
