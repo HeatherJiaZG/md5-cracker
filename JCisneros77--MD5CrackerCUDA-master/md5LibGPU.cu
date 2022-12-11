@@ -15,6 +15,12 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
+#include <stdio.h>
+#include <sys/types.h>
+#include <time.h>
+#include <string.h>
+
+
 /* F, G and H are basic MD5 functions: selection, majority, parity */
 #define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
 #define G(x, y, z) (((x) & (z)) | ((y) & (~z)))
@@ -47,8 +53,7 @@
    (a) += (b); \
   }
 
-__device__ static void Transform (UINT4 * buf, UINT4 * in)
-{
+__device__ static void Transform (UINT4 * buf, UINT4 * in) {
   UINT4 a = buf[0], b = buf[1], c = buf[2], d = buf[3];
 
   /* Round 1 */
@@ -147,8 +152,7 @@ __device__ static void Transform (UINT4 * buf, UINT4 * in)
 
 /************************ CUDA Functions ************************/
 
-__device__ void MD5Init (MD5_CTX * mdContext)
-{
+__device__ void MD5Init (MD5_CTX * mdContext) {
   mdContext->i[0] = mdContext->i[1] = (UINT4)0;
 
   /* Load magic initialization constants.
@@ -191,8 +195,7 @@ __device__ void MD5Update(MD5_CTX * mdContext, unsigned char * inBuf, unsigned i
   }
 }
 
-__device__ void MD5Final (MD5_CTX * mdContext)
-{
+__device__ void MD5Final (MD5_CTX * mdContext) {
   UINT4 in[16];
   int mdi;
   unsigned int i, ii;
@@ -216,7 +219,7 @@ __device__ void MD5Final (MD5_CTX * mdContext)
 
   /* pad out to 56 mod 64 */
   padLen = (mdi < 56) ? (56 - mdi) : (120 - mdi);
-  MD5Update (mdContext, PADDING, padLen);
+  MD5Update(mdContext, PADDING, padLen);
 
   /* append length in bits and transform */
   for (i = 0, ii = 0; i < 14; i++, ii += 4)
@@ -237,11 +240,9 @@ __device__ void MD5Final (MD5_CTX * mdContext)
       (unsigned char)((mdContext->buf[i] >> 24) & 0xFF);
   }
 }
+
+
 /************************ Main Functions ************************/
-#include <stdio.h>
-#include <sys/types.h>
-#include <time.h>
-#include <string.h>
 
 __device__ static char * getString(int start, int length, char * words){
   char out[30];
@@ -270,9 +271,9 @@ __global__ static void MDString (char * words,int * hash_found,int * target_hash
     MD5_CTX mdContext;
     unsigned int len = wordLengths[idx];
     unsigned char * uInString = reinterpret_cast<unsigned char *>( inString );
-    MD5Init (&mdContext);
-    MD5Update (&mdContext, uInString, len);
-    MD5Final (&mdContext);
+    MD5Init(&mdContext);
+    MD5Update(&mdContext, uInString, len);
+    MD5Final(&mdContext);
     // Check if MD5's are equal
     int flag_same = 1;
     for (int i = 0; i < 16; ++i){

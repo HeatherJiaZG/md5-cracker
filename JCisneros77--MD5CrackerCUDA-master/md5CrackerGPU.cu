@@ -13,8 +13,33 @@
 #define WORD_SIZE 64
 #define MD5_SIZE 32
 
-// Helper Functions
-void getOptimalThreads(struct deviceInfo *);
+#define REQUIRED_SHARED_MEMORY 64
+#define FUNCTION_PARAM_ALLOC 256
+
+void getOptimalThreads(struct deviceInfo * device) {
+	int max_threads;
+	int max_blocks;
+	int shared_memory;
+
+	max_threads = device->prop.maxThreadsPerBlock;
+	shared_memory = device->prop.sharedMemPerBlock - FUNCTION_PARAM_ALLOC;
+	
+	// calculate the most threads that we can support optimally
+	
+	while ((shared_memory / max_threads) < REQUIRED_SHARED_MEMORY) { max_threads--; } 
+
+	// now we spread our threads across blocks 
+	
+	max_blocks = 40;		
+
+	device->max_threads = max_threads;		// most threads we support
+	device->max_blocks = max_blocks;		// most blocks we support
+
+	// now we need to have (device.max_threads * device.max_blocks) number of words in memory for the graphics card
+	
+	device->global_memory_len = (device->max_threads * device->max_blocks) * 64;
+}
+
 
 int main(int argc, char ** argv){
 	// Initialize total time in 0
@@ -147,31 +172,4 @@ int main(int argc, char ** argv){
 	fclose(wordListFile);
 	return 0;
 
-}
-/************** Optimize Cuda Threads Helper **************/
-#define REQUIRED_SHARED_MEMORY 64
-#define FUNCTION_PARAM_ALLOC 256
-
-void getOptimalThreads(struct deviceInfo * device) {
-	int max_threads;
-	int max_blocks;
-	int shared_memory;
-
-	max_threads = device->prop.maxThreadsPerBlock;
-	shared_memory = device->prop.sharedMemPerBlock - FUNCTION_PARAM_ALLOC;
-	
-	// calculate the most threads that we can support optimally
-	
-	while ((shared_memory / max_threads) < REQUIRED_SHARED_MEMORY) { max_threads--; } 
-
-	// now we spread our threads across blocks 
-	
-	max_blocks = 40;		
-
-	device->max_threads = max_threads;		// most threads we support
-	device->max_blocks = max_blocks;		// most blocks we support
-
-	// now we need to have (device.max_threads * device.max_blocks) number of words in memory for the graphics card
-	
-	device->global_memory_len = (device->max_threads * device->max_blocks) * 64;
 }

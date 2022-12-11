@@ -15,6 +15,7 @@ tmpxft_00006e83_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x150): multiple defini
 /usr/bin/ld: /tmp/tmpxft_00006e83_00000000-18_md5LibGPU.o: in function `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)':
 tmpxft_00006e83_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x160): multiple definition of `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)'; /tmp/tmpxft_00006e83_00000000-15_md5CrackerGPU.o:tmpxft_00006e83_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x160): first defined here
 /usr/bin/ld: /tmp/tmpxft_00006e83_00000000-15_md5CrackerGPU.o: in function `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)':
+
 tmpxft_00006e83_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x2aa): undefined reference to `totalTime'
 /usr/bin/ld: tmpxft_00006e83_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x2c0): undefined reference to `totalTime'
 /usr/bin/ld: /tmp/tmpxft_00006e83_00000000-15_md5CrackerGPU.o: in function `main':
