@@ -20,6 +20,8 @@
 #include <sys/types.h>
 #include <time.h>
 #include <string.h>
+#include <string>
+#include <iostream>
 
 
 /* F, G and H are basic MD5 functions: selection, majority, parity */
