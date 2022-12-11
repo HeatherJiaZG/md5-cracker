@@ -16,7 +16,7 @@
 #define REQUIRED_SHARED_MEMORY 64
 #define FUNCTION_PARAM_ALLOC 256
 
-int callMD5CUDA(struct deviceInfo *,char *, int *,int *, int,int *);
+extern int callMD5CUDA(struct deviceInfo *,char *, int *,int *, int,int *);
 
 void getOptimalThreads(struct deviceInfo * device) {
 	int max_threads;

@@ -294,7 +294,7 @@ __global__ static void MDString (char * words,int * hash_found,int * target_hash
   }
 }
 
-int callMD5CUDA(struct deviceInfo * device,char * words, int * target_hash,int * indexes, int numberOfWords,int * wordLengths) {
+extern "C" int callMD5CUDA(struct deviceInfo * device,char * words, int * target_hash,int * indexes, int numberOfWords,int * wordLengths) {
   // Start Execution Time
   int * d_hash_found;
   cudaMalloc((void**) &d_hash_found,sizeof(int));
