@@ -5,7 +5,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include "md5LibGPU.cu"
-#include "md5CrackerGPU.cuh"
+#include "md5CrackerGPU.h"
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <ctype.h>
@@ -16,7 +16,6 @@
 #define REQUIRED_SHARED_MEMORY 64
 #define FUNCTION_PARAM_ALLOC 256
 
-extern int callMD5CUDA(struct deviceInfo *,char *, int *,int *, int,int *);
 
 void getOptimalThreads(struct deviceInfo * device) {
 	int max_threads;
@@ -45,7 +44,7 @@ void getOptimalThreads(struct deviceInfo * device) {
 
 int main(int argc, char ** argv){
 	// Initialize total time in 0
-	int totalTime = 0;
+	extern int totalTime = 0;
 	// Initialize deviceInfo struct
 	struct deviceInfo device; 
 	// Set device id to 0 (Use fastest device)

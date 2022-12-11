@@ -11,7 +11,7 @@
  ** documentation and/or software.                                   **
  **********************************************************************
  */
-#include "md5CrackerGPU.cuh"
+#include "md5CrackerGPU.h"
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
@@ -294,7 +294,7 @@ __global__ static void MDString (char * words,int * hash_found,int * target_hash
   }
 }
 
-extern "C" int callMD5CUDA(struct deviceInfo * device,char * words, int * target_hash,int * indexes, int numberOfWords,int * wordLengths) {
+int callMD5CUDA(struct deviceInfo * device,char * words, int * target_hash,int * indexes, int numberOfWords,int * wordLengths) {
   // Start Execution Time
   int * d_hash_found;
   cudaMalloc((void**) &d_hash_found,sizeof(int));
