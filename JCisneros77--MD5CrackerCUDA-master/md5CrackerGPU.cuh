@@ -1,5 +1,5 @@
-#ifndef __MD5CRACKERGPU_H__
-#define __MD5CRACKERGPU_H__
+#ifndef __MD5CRACKERGPU_CUH__
+#define __MD5CRACKERGPU_CUH__
 
 // Struct to store device information
 struct deviceInfo{
@@ -23,9 +23,9 @@ typedef struct {
 
 float totalTime;
 
-__device__ void MD5Init (MD5_CTX * mdContext);
-__device__ void MD5Update (MD5_CTX * mdContext, unsigned char * inBuf, unsigned int inLen);
-__device__ void MD5Final (MD5_CTX * mdContext);
+// __device__ void MD5Init (MD5_CTX * mdContext);
+// __device__ void MD5Update (MD5_CTX * mdContext, unsigned char * inBuf, unsigned int inLen);
+// __device__ void MD5Final (MD5_CTX * mdContext);
 int callMD5CUDA(struct deviceInfo *,char *, int *,int *, int,int *);
 
 #endif

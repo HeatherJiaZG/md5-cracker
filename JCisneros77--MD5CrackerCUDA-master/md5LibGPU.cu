@@ -159,7 +159,7 @@ __device__ void MD5Init (MD5_CTX * mdContext)
   mdContext->buf[3] = (UINT4)0x10325476;
 }
 
-__device__ void MD5Update (MD5_CTX * mdContext, unsigned char * inBuf, unsigned int inLen)
+__device__ void MD5Update(MD5_CTX * mdContext, unsigned char * inBuf, unsigned int inLen)
 {
   UINT4 in[16];
   int mdi;
