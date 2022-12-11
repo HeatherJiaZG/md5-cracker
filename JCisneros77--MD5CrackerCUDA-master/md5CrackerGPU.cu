@@ -44,7 +44,7 @@ void getOptimalThreads(struct deviceInfo * device) {
 
 int main(int argc, char ** argv){
 	// Initialize total time in 0
-	extern int totalTime = 0;
+	float totalTime = 0;
 	// Initialize deviceInfo struct
 	struct deviceInfo device; 
 	// Set device id to 0 (Use fastest device)

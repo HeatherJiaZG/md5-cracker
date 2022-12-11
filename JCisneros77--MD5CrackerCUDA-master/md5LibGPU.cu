@@ -310,7 +310,7 @@ int callMD5CUDA(struct deviceInfo * device,char * words, int * target_hash,int *
   cudaEventSynchronize(stop); 
   cudaEventElapsedTime( &elapsedTime, start, stop);
 
-  extern int totalTime;
+  float totalTime;
   totalTime+=elapsedTime;
   // Copy flag from GPU to CPU and free memory
   int * h_hash_found = (int *) malloc(sizeof(int));
