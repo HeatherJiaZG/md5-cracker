@@ -12,6 +12,7 @@
  **********************************************************************
  */
 #include "md5CrackerGPU.h"
+#include "md5LibGPU.h"
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 

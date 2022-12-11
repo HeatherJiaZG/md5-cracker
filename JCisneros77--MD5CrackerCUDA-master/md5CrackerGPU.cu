@@ -4,8 +4,10 @@
 #include <cuda.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include "md5LibGPU.cu"
+
+#include "md5LibGPU.h"
 #include "md5CrackerGPU.h"
+
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <ctype.h>
