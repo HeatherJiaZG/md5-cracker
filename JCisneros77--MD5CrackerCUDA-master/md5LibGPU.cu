@@ -286,7 +286,7 @@ __global__ static void MDString (char * words,int * hash_found,int * target_hash
     if (flag_same == 1){
       // MD5 cracked
       // Print word
-      std::printf("-------------MD5 Cracked!-------------\nWord: %s\n--------------------------------------\n",inString);
+      printf("-------------MD5 Cracked!-------------\nWord: %s\n--------------------------------------\n",inString);
       // Change flag to True and break cycle
       hash_found[0] = 1;
     }
