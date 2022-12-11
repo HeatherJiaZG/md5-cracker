@@ -9,7 +9,7 @@
 
 module load nvidia/cuda
 
-nvcc md5LibGPU.cu md5CrackerGPU.cu -Xcompiler -O3 -Xcompiler -Wall -Xptxas -O3 -o cracker
+nvcc md5LibGPU.cu md5CrackerGPU.cu -Xcompiler -O3 -Xcompiler -Wall -Xptxas -O3 -std=c++17 -o cracker
 
 ./cracker md5Hash.txt wordList.txt
 

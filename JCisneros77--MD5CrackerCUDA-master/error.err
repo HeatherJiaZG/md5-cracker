@@ -1,27 +1,2 @@
-md5CrackerGPU.cuh(15): error: incomplete type is not allowed
-
-md5CrackerGPU.cuh(15): error: identifier "MD5_CTX" is undefined
-
-md5CrackerGPU.cuh(15): error: identifier "mdContext" is undefined
-
-md5CrackerGPU.cuh(16): error: incomplete type is not allowed
-
-md5CrackerGPU.cuh(16): error: type name is not allowed
-
-md5CrackerGPU.cuh(16): error: expected a ")"
-
-md5CrackerGPU.cuh(17): error: incomplete type is not allowed
-
-md5LibGPU.cu(159): error: declaration is incompatible with "<error-type> MD5Init"
-md5CrackerGPU.cuh(15): here
-
-md5LibGPU.cu(171): error: declaration is incompatible with "<error-type> MD5Update"
-md5CrackerGPU.cuh(16): here
-
-md5LibGPU.cu(203): error: declaration is incompatible with "<error-type> MD5Final"
-md5CrackerGPU.cuh(17): here
-
-md5LibGPU.cu(264): warning #1056-D: returning pointer to local variable
-
-10 errors detected in the compilation of "md5LibGPU.cu".
-/var/spool/slurmd/job293160/slurm_script: line 14: ./cracker: No such file or directory
+nvcc fatal   : Unknown option '-fcommon'
+/var/spool/slurmd/job293181/slurm_script: line 14: ./cracker: No such file or directory
