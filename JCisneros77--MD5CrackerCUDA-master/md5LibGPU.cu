@@ -152,7 +152,7 @@ __device__ static void Transform (UINT4 * buf, UINT4 * in) {
 
 /************************ CUDA Functions ************************/
 
-__device__ void MD5Init (MD5_CTX * mdContext) {
+__device__ static void MD5Init (MD5_CTX * mdContext) {
   mdContext->i[0] = mdContext->i[1] = (UINT4)0;
 
   /* Load magic initialization constants.
@@ -163,7 +163,7 @@ __device__ void MD5Init (MD5_CTX * mdContext) {
   mdContext->buf[3] = (UINT4)0x10325476;
 }
 
-__device__ void MD5Update(MD5_CTX * mdContext, unsigned char * inBuf, unsigned int inLen)
+__device__ static void MD5Update(MD5_CTX * mdContext, unsigned char * inBuf, unsigned int inLen)
 {
   UINT4 in[16];
   int mdi;
@@ -195,7 +195,7 @@ __device__ void MD5Update(MD5_CTX * mdContext, unsigned char * inBuf, unsigned i
   }
 }
 
-__device__ void MD5Final (MD5_CTX * mdContext) {
+__device__ static void MD5Final (MD5_CTX * mdContext) {
   UINT4 in[16];
   int mdi;
   unsigned int i, ii;

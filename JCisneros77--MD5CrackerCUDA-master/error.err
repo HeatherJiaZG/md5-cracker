@@ -1,28 +1,24 @@
-md5LibGPU.cu(255): warning #1056-D: returning pointer to local variable
+md5LibGPU.cu(256): warning #1056-D: returning pointer to local variable
 
-md5LibGPU.cu(255): warning #1056-D: returning pointer to local variable
+md5LibGPU.cu(256): warning #1056-D: returning pointer to local variable
 
-md5LibGPU.cu(255): warning #1056-D: returning pointer to local variable
+md5CrackerGPU.cu: In function ‘int main(int, char**)’:
+md5CrackerGPU.cu:172:20: warning: format ‘%f’ expects argument of type ‘double’, but argument 2 has type ‘int’ [-Wformat=]
+  172 |         std::printf("Total Time: %f ms\n",totalTime);
+      |                    ^~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~
+      |                                           |
+      |                                           int
+md5LibGPU.cu(256): warning #1056-D: returning pointer to local variable
 
-md5LibGPU.cu(255): warning #1056-D: returning pointer to local variable
+md5LibGPU.cu(256): warning #1056-D: returning pointer to local variable
 
-/usr/bin/ld: /tmp/tmpxft_00006e83_00000000-18_md5LibGPU.o: in function `MD5Init(MD5_CTX*)':
-tmpxft_00006e83_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x110): multiple definition of `MD5Init(MD5_CTX*)'; /tmp/tmpxft_00006e83_00000000-15_md5CrackerGPU.o:tmpxft_00006e83_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x110): first defined here
-/usr/bin/ld: /tmp/tmpxft_00006e83_00000000-18_md5LibGPU.o: in function `MD5Update(MD5_CTX*, unsigned char*, unsigned int)':
-tmpxft_00006e83_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x130): multiple definition of `MD5Update(MD5_CTX*, unsigned char*, unsigned int)'; /tmp/tmpxft_00006e83_00000000-15_md5CrackerGPU.o:tmpxft_00006e83_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x130): first defined here
-/usr/bin/ld: /tmp/tmpxft_00006e83_00000000-18_md5LibGPU.o: in function `MD5Final(MD5_CTX*)':
-tmpxft_00006e83_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x150): multiple definition of `MD5Final(MD5_CTX*)'; /tmp/tmpxft_00006e83_00000000-15_md5CrackerGPU.o:tmpxft_00006e83_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x150): first defined here
-/usr/bin/ld: /tmp/tmpxft_00006e83_00000000-18_md5LibGPU.o: in function `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)':
-tmpxft_00006e83_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x160): multiple definition of `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)'; /tmp/tmpxft_00006e83_00000000-15_md5CrackerGPU.o:tmpxft_00006e83_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x160): first defined here
-/usr/bin/ld: /tmp/tmpxft_00006e83_00000000-15_md5CrackerGPU.o: in function `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)':
-
-tmpxft_00006e83_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x2aa): undefined reference to `totalTime'
-/usr/bin/ld: tmpxft_00006e83_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x2c0): undefined reference to `totalTime'
-/usr/bin/ld: /tmp/tmpxft_00006e83_00000000-15_md5CrackerGPU.o: in function `main':
-tmpxft_00006e83_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text.startup+0x18): undefined reference to `totalTime'
-/usr/bin/ld: tmpxft_00006e83_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text.startup+0x46b): undefined reference to `totalTime'
-/usr/bin/ld: /tmp/tmpxft_00006e83_00000000-18_md5LibGPU.o: in function `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)':
-tmpxft_00006e83_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x2aa): undefined reference to `totalTime'
-/usr/bin/ld: /tmp/tmpxft_00006e83_00000000-18_md5LibGPU.o:tmpxft_00006e83_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x2c0): more undefined references to `totalTime' follow
+/usr/bin/ld: /tmp/tmpxft_002c6f7c_00000000-18_md5LibGPU.o: in function `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)':
+tmpxft_002c6f7c_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x110): multiple definition of `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)'; /tmp/tmpxft_002c6f7c_00000000-15_md5CrackerGPU.o:tmpxft_002c6f7c_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x110): first defined here
+/usr/bin/ld: /tmp/tmpxft_002c6f7c_00000000-15_md5CrackerGPU.o: in function `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)':
+tmpxft_002c6f7c_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x25a): undefined reference to `totalTime'
+/usr/bin/ld: tmpxft_002c6f7c_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x270): undefined reference to `totalTime'
+/usr/bin/ld: /tmp/tmpxft_002c6f7c_00000000-18_md5LibGPU.o: in function `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)':
+tmpxft_002c6f7c_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x25a): undefined reference to `totalTime'
+/usr/bin/ld: tmpxft_002c6f7c_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x270): undefined reference to `totalTime'
 collect2: error: ld returned 1 exit status
-/var/spool/slurmd/job293202/slurm_script: line 14: ./cracker: No such file or directory
+/var/spool/slurmd/job293229/slurm_script: line 14: ./cracker: No such file or directory
