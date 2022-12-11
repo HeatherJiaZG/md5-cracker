@@ -21,7 +21,7 @@ typedef struct {
   unsigned char digest[16];     /* actual digest after MD5Final call */
 } MD5_CTX;
 
-extern float totalTime;
+// extern float totalTime;
 
 // __device__ void MD5Init (MD5_CTX * mdContext);
 // __device__ void MD5Update (MD5_CTX * mdContext, unsigned char * inBuf, unsigned int inLen);
