@@ -192,9 +192,9 @@ int main(int argc, char* argv[]){
       ERROR_CHECK(cudaMemcpy(words[device], g_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
     
 
-      std::cout << "[DEBUG] g_wordLength=" << std::string(g_wordLength) << std::endl;
-      std::cout << "[DEBUG] words[device]=" << std::string(words[device]) << std::endl;
-      std::cout << "[DEBUG] g_word=" << std::string(g_word) << std::endl;
+      // std::cout << "[DEBUG] g_wordLength=" << std::string(g_wordLength) << std::endl;
+      // std::cout << "[DEBUG] words[device]=" << std::string(words[device]) << std::endl;
+      // std::cout << "[DEBUG] g_word=" << std::string(g_word) << std::endl;
 
       /* Start kernel */
       md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words[device], md5Hash[0], md5Hash[1], md5Hash[2], md5Hash[3]);
