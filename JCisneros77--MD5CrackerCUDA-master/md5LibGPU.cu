@@ -272,6 +272,7 @@ __global__ static void MDString (char * words,int * hash_found,int * target_hash
     MD5_CTX mdContext;
     unsigned int len = wordLengths[idx];
     unsigned char * uInString = reinterpret_cast<unsigned char *>( inString );
+    printf("[DEBUG] uInString=%s\n", uInString);
     MD5Init(&mdContext);
     MD5Update(&mdContext, uInString, len);
     MD5Final(&mdContext);
@@ -288,6 +289,8 @@ __global__ static void MDString (char * words,int * hash_found,int * target_hash
     if (flag_same == 1){
       // MD5 cracked
       // Print word
+      std::string str(inString);
+      std::cout << "[DEBUG]" << inString << "\n";
       printf("-------------MD5 Cracked!-------------\nWord: %s\n--------------------------------------\n",inString);
       // Change flag to True and break cycle
       hash_found[0] = 1;
