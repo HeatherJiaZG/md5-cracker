@@ -1,24 +1,37 @@
-md5LibGPU.cu(256): warning #1056-D: returning pointer to local variable
+md5LibGPU.cu(259): warning #1056-D: returning pointer to local variable
 
-md5LibGPU.cu(256): warning #1056-D: returning pointer to local variable
+md5LibGPU.cu(295): warning #20096-D: address of a host variable "std::cout" cannot be directly taken in a device function
 
-md5CrackerGPU.cu: In function ‘int main(int, char**)’:
-md5CrackerGPU.cu:172:20: warning: format ‘%f’ expects argument of type ‘double’, but argument 2 has type ‘int’ [-Wformat=]
-  172 |         std::printf("Total Time: %f ms\n",totalTime);
-      |                    ^~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~
-      |                                           |
-      |                                           int
-md5LibGPU.cu(256): warning #1056-D: returning pointer to local variable
+md5LibGPU.cu(320): warning #549-D: variable "totalTime" is used before its value is set
 
-md5LibGPU.cu(256): warning #1056-D: returning pointer to local variable
+md5LibGPU.cu(294): error: calling a __host__ function("std::__cxx11::basic_string<char,     ::std::char_traits<char> , ::std::allocator<char> > ::basic_string<::std::allocator<char> > (const char *, const ::std::allocator<char> &)") from a __global__ function("MDString") is not allowed
 
-/usr/bin/ld: /tmp/tmpxft_002c6f7c_00000000-18_md5LibGPU.o: in function `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)':
-tmpxft_002c6f7c_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x110): multiple definition of `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)'; /tmp/tmpxft_002c6f7c_00000000-15_md5CrackerGPU.o:tmpxft_002c6f7c_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x110): first defined here
-/usr/bin/ld: /tmp/tmpxft_002c6f7c_00000000-15_md5CrackerGPU.o: in function `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)':
-tmpxft_002c6f7c_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x25a): undefined reference to `totalTime'
-/usr/bin/ld: tmpxft_002c6f7c_00000000-6_md5CrackerGPU.cudafe1.cpp:(.text+0x270): undefined reference to `totalTime'
-/usr/bin/ld: /tmp/tmpxft_002c6f7c_00000000-18_md5LibGPU.o: in function `callMD5CUDA(deviceInfo*, char*, int*, int*, int, int*)':
-tmpxft_002c6f7c_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x25a): undefined reference to `totalTime'
-/usr/bin/ld: tmpxft_002c6f7c_00000000-10_md5LibGPU.cudafe1.cpp:(.text+0x270): undefined reference to `totalTime'
-collect2: error: ld returned 1 exit status
-/var/spool/slurmd/job293229/slurm_script: line 14: ./cracker: No such file or directory
+md5LibGPU.cu(294): error: identifier "std::__cxx11::basic_string<char,     ::std::char_traits<char> , ::std::allocator<char> > ::basic_string<::std::allocator<char> > " is undefined in device code
+
+md5LibGPU.cu(294): error: calling a __host__ function("std::allocator<char> ::allocator()") from a __global__ function("MDString") is not allowed
+
+md5LibGPU.cu(294): error: identifier "std::allocator<char> ::allocator" is undefined in device code
+
+md5LibGPU.cu(294): error: calling a __host__ function("std::allocator<char> ::~allocator()") from a __global__ function("MDString") is not allowed
+
+md5LibGPU.cu(294): error: identifier "std::allocator<char> ::~allocator" is undefined in device code
+
+md5LibGPU.cu(295): error: calling a __host__ function("std::basic_ostream<char, T1>  &  ::std::operator <<<    ::std::char_traits<char> > (    ::std::basic_ostream<char, T1>  &, const char *)") from a __global__ function("MDString") is not allowed
+
+md5LibGPU.cu(295): error: identifier "std::operator <<<    ::std::char_traits<char> > " is undefined in device code
+
+md5LibGPU.cu(295): error: calling a __host__ function("std::basic_ostream<char, T1>  &  ::std::operator <<<    ::std::char_traits<char> > (    ::std::basic_ostream<char, T1>  &, const char *)") from a __global__ function("MDString") is not allowed
+
+md5LibGPU.cu(295): error: identifier "std::operator <<<    ::std::char_traits<char> > " is undefined in device code
+
+md5LibGPU.cu(295): error: identifier "std::cout" is undefined in device code
+
+md5LibGPU.cu(295): error: calling a __host__ function("std::basic_ostream<char, T1>  &  ::std::operator <<<    ::std::char_traits<char> > (    ::std::basic_ostream<char, T1>  &, const char *)") from a __global__ function("MDString") is not allowed
+
+md5LibGPU.cu(295): error: identifier "std::operator <<<    ::std::char_traits<char> > " is undefined in device code
+
+md5LibGPU.cu(299): error: calling a __host__ function("std::__cxx11::basic_string<char,     ::std::char_traits<char> , ::std::allocator<char> > ::~basic_string()") from a __global__ function("MDString") is not allowed
+
+md5LibGPU.cu(299): error: identifier "std::__cxx11::basic_string<char,     ::std::char_traits<char> , ::std::allocator<char> > ::~basic_string" is undefined in device code
+
+15 errors detected in the compilation of "md5LibGPU.cu".
