@@ -3,12 +3,12 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include "md5LibGPU.cu"
+#include "md5CrackerGPU.cuh"
 #include <ctype.h>
 
 #define WORD_SIZE 64
 #define MD5_SIZE 32
-// Function to call CUDA function in .cu file
-extern int callMD5CUDA(struct deviceInfo *,char *, int *,int *, int,int *);
+
 // Helper Functions
 void getOptimalThreads(struct deviceInfo *);
 

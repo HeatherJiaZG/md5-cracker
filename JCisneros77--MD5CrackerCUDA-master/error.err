@@ -8,6 +8,7 @@ md5LibGPU.cu(264): warning #1056-D: returning pointer to local variable
 
 /usr/bin/ld: /tmp/tmpxft_00005c54_00000000-18_md5CrackerGPU.o: in function `MD5Init(MD5_CTX*)':
 tmpxft_00005c54_00000000-10_md5CrackerGPU.cudafe1.cpp:(.text+0x110): multiple definition of `MD5Init(MD5_CTX*)'; /tmp/tmpxft_00005c54_00000000-15_md5LibGPU.o:tmpxft_00005c54_00000000-6_md5LibGPU.cudafe1.cpp:(.text+0x110): first defined here
+
 /usr/bin/ld: /tmp/tmpxft_00005c54_00000000-18_md5CrackerGPU.o: in function `MD5Update(MD5_CTX*, unsigned char*, unsigned int)':
 tmpxft_00005c54_00000000-10_md5CrackerGPU.cudafe1.cpp:(.text+0x130): multiple definition of `MD5Update(MD5_CTX*, unsigned char*, unsigned int)'; /tmp/tmpxft_00005c54_00000000-15_md5LibGPU.o:tmpxft_00005c54_00000000-6_md5LibGPU.cudafe1.cpp:(.text+0x130): first defined here
 /usr/bin/ld: /tmp/tmpxft_00005c54_00000000-18_md5CrackerGPU.o: in function `MD5Final(MD5_CTX*)':
