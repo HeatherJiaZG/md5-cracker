@@ -274,9 +274,10 @@ __global__ static void MDString (char * words,int * hash_found,int * target_hash
     MD5_CTX mdContext;
     unsigned int len = wordLengths[idx];
     unsigned char * uInString = reinterpret_cast<unsigned char *>( inString );
-    printf("[DEBUG] uInString=%s\n", uInString);
+    printf("[DEBUG]1 uInString=%s\n", uInString);
     MD5Init(&mdContext);
     MD5Update(&mdContext, uInString, len);
+    printf("[DEBUG]2 uInString=%s\n", uInString);
     MD5Final(&mdContext);
     // Check if MD5's are equal
     int flag_same = 1;
@@ -292,7 +293,8 @@ __global__ static void MDString (char * words,int * hash_found,int * target_hash
       // MD5 cracked
       // Print word
 
-      printf("[DEBUG] inString=%s\n", uInString);
+      printf("[DEBUG] inString=%s\n", inString);
+      printf("[DEBUG]3 uInString=%s\n", uInString);
       printf("[DEBUG] flag_same=%d\n", flag_same);
       printf("-------------MD5 Cracked!-------------\nWord: %s\n--------------------------------------\n",uInString);
       // Change flag to True and break cycle
