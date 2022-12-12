@@ -22,7 +22,7 @@ char g_cracked[CONST_WORD_LIMIT];
 __device__ char g_deviceCharset[CONST_CHARSET_LENGTH];
 __device__ char g_deviceCracked[CONST_WORD_LIMIT];
 
-__global__ void md5Crack(uint8_t wordLength, char* charsetWord, int hash01, int hash02, int hash03, int hash04){
+__global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01, uint32_t hash02, uint32_t hash03, uint32_t hash04){
   uint32_t idx = (blockIdx.x * blockDim.x + threadIdx.x) * HASHES_PER_KERNEL;
   
   /* Shared variables */
@@ -32,7 +32,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, int hash01, int 
   char threadCharsetWord[CONST_WORD_LIMIT];
   char threadTextWord[CONST_WORD_LIMIT];
   uint8_t threadWordLength;
-  int threadHash01, threadHash02, threadHash03, threadHash04;
+  uint32_t threadHash01, threadHash02, threadHash03, threadHash04;
   
   /* Copy everything to local memory */
   memcpy(threadCharsetWord, charsetWord, CONST_WORD_LIMIT);
@@ -60,7 +60,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, int hash01, int 
 }
 
 
-bool runMD5CUDA(char* words, uint8_t g_wordLength, int* hashBins, bool *result, int *time) {
+bool runMD5CUDA(char* words, uint8_t g_wordLength, uint32_t* hashBins, bool *result, int *time) {
   // true: found, false: not found
   bool found = false;
 
@@ -76,6 +76,13 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, int* hashBins, bool *result, 
   md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words, hashBins[0], hashBins[1], hashBins[2], hashBins[3]);
   /* Global increment */
   *result = next(&g_wordLength, g_word, TOTAL_THREADS * HASHES_PER_KERNEL * TOTAL_BLOCKS);
+  
+  /* Display progress */
+  char word[CONST_WORD_LIMIT];
+  
+  for(int i = 0; i < g_wordLength; i++){
+    word[i] = g_charset[g_word[i]];
+  }
     
   /* Synchronize now */
   cudaDeviceSynchronize();
@@ -101,12 +108,22 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, int* hashBins, bool *result, 
 
 int main(int argc, char* argv[]){
 
-  int totalTime = 0; 
-  memcpy(g_charset, CONST_CHARSET, CONST_CHARSET_LENGTH);
-  // char g_charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  // FILE *f = fopen("chars.txt", "rb");
+  // fseek(f, 0, SEEK_END);
+  // long fsize = ftell(f);
+  // fseek(f, 0, SEEK_SET);
+  
+  // char *g_charset = (char *)malloc(fsize + 1);
+  // fread(g_charset, fsize, 1, f);
+  // fclose(f);
+  // g_charset[fsize] = 0;
 
+  int totalTime = 0; 
+
+  memcpy(g_charset, CONST_CHARSET, CONST_CHARSET_LENGTH);
+  
   /* Hash stored as u32 integers */
-  int hashBins[4];
+  uint32_t hashBins[4];
   getHashBins(argv[1], hashBins);
   
   

@@ -1,4 +1,5 @@
 
+
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
@@ -11,18 +12,18 @@
 
 #include "md5.h"
 
-__device__ inline void md5Hash(unsigned char* data, uint32_t length, int *a1, int *b1, int *c1, int *d1){
-  const int a0 = 0x67452301;
-  const int b0 = 0xEFCDAB89;
-  const int c0 = 0x98BADCFE;
-  const int d0 = 0x10325476;
+__device__ inline void md5Hash(unsigned char* data, uint32_t length, uint32_t *a1, uint32_t *b1, uint32_t *c1, uint32_t *d1){
+  const uint32_t a0 = 0x67452301;
+  const uint32_t b0 = 0xEFCDAB89;
+  const uint32_t c0 = 0x98BADCFE;
+  const uint32_t d0 = 0x10325476;
 
-  int a = 0;
-  int b = 0;
-  int c = 0;
-  int d = 0;
+  uint32_t a = 0;
+  uint32_t b = 0;
+  uint32_t c = 0;
+  uint32_t d = 0;
 
-  int vals[14] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  uint32_t vals[14] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
   int i = 0;
   for(i=0; i < length; i++){
