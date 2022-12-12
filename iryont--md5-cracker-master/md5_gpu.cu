@@ -153,18 +153,15 @@ int main(int argc, char* argv[]){
   /* Allocate on each device */
   ERROR_CHECK(cudaMalloc((void**)&words[0], sizeof(uint8_t) * CONST_WORD_LIMIT));
 
+  bool result = true;
+  bool found = false;
+
+  while(result && !found){
+    found = runMD5CUDA(words, g_wordLength, hashBins, &result, &totalTime);
+  }
   
-  while(true){
-    bool result = false;
-    bool found = runMD5CUDA(words, g_wordLength, hashBins, &result, &totalTime);
-    
-    if(!result || found){
-      if(!result && !found){
-        std::cout << "Notice: found nothing (host)" << std::endl;
-      }
-      
-      break;
-    }
+  if(!result && !found){
+    std::cout << "Notice: found nothing (host)" << std::endl;
   }
     
   /* Free on each device */
