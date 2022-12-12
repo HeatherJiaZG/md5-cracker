@@ -76,12 +76,18 @@ int run_test(const char* name, const char* result, const char* expected) {
     }
 }
 
+char *target = "07159c47ee1b19ae4fb9c40d480856c4";
 
 void print_str(const char str[],std::string prefix,const int n, const int lenght) {
         if (lenght == 1)
             {
-                for (int j = 0; j < n; j++)
-                std::cout << prefix + str[j] << std::endl;
+                for (int j = 0; j < n; j++) {
+                    if (strcmp(target, md5_hash(prefix + str[j])) == 0) {
+                        std::cout << "Cracked = " << prefix + str[j] << std::endl;
+                        break
+                    }
+                }
+                // std::cout << prefix + str[j] << std::endl;
 
             }//Base case: lenght = 1, print the string "lenght" times + the remaining letter
 
@@ -111,6 +117,7 @@ int main() {
     // run_test("md5(\"\")", hash(""), "d41d8cd98f00b204e9800998ecf8427e") ? passed++ : failed++;
     // run_test("md5(\"a\")", hash("a"), "0cc175b9c0f1b6a831c399e269772661") ? passed++ : failed++;
     run_test("md5(\"abc\")", md5_hash("abc"), "900150983cd24fb0d6963f7d28e17f72") ? passed++ : failed++;
+    run_test("md5(\"ba\")", md5_hash("ba"), "07159c47ee1b19ae4fb9c40d480856c4") ? passed++ : failed++;
     // run_test("md5(\"message digest\")", hash("message digest"), "f96b697d7cb7938d525a2f31aaf161d0") ? passed++ : failed++;
     // run_test("md5(\"abcdefghijklmnopqrstuvwxyz\")", \
     //     hash("abcdefghijklmnopqrstuvwxyz"), \
@@ -128,7 +135,7 @@ int main() {
 
 
     int len = 2;
-    char str[] = {'A', 'B', 'C', 'D'};
+    char str[] = {'a', 'b', 'c', 'd'};
     int n = sizeof(str);
     print_str(str, "", n, len);
 
