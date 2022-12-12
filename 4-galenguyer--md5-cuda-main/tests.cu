@@ -80,10 +80,10 @@ int main() {
     // int n = stoi(argv[1]); // password length
     int n=3;
     // std::string target = argv[2]; // target hash
-    char target[] = "bae60998ffe4923b131e3d6e4c19993e";
+    // char *target = "bae60998ffe4923b131e3d6e4c19993e";
     char* result = "";
 
-    cout << "target = " << target << endl;
+    // cout << "target = " << target << endl;
 
     char chars[] = { 'a', 'b', 'd', '3', '4', '5', '6', '7', '8', '9' };
     int len = sizeof(chars) / sizeof(chars[0]);
