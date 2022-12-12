@@ -51,7 +51,7 @@ char* md5_hash(const char* h_str) {
     cudaMalloc((void**)&d_res, sizeof(char) * 32);
     cudaMemcpy(d_str, h_str, sizeof(char) * strlen(h_str), cudaMemcpyHostToDevice);
 
-    md5<<<device->max_blocks, device->max_threads>>>(d_str, (uint32_t)strlen(h_str), d_res);
+    md5<<<device.max_blocks, device.max_threads>>>(d_str, (uint32_t)strlen(h_str), d_res);
 
     cudaMemcpy(h_res, d_res, sizeof(unsigned char)*(32), cudaMemcpyDeviceToHost);
 
