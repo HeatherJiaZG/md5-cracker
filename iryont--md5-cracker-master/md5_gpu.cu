@@ -30,20 +30,8 @@
 #include <curand_kernel.h>
 #include <device_functions.h>
 
-#define CONST_WORD_LIMIT 10
-#define CONST_CHARSET_LIMIT 100
-
-#define CONST_CHARSET "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-#define CONST_CHARSET_LENGTH (sizeof(CONST_CHARSET) - 1)
-
-#define CONST_WORD_LENGTH_MIN 1
-#define CONST_WORD_LENGTH_MAX 8
-
-#define TOTAL_BLOCKS 16384UL
-#define TOTAL_THREADS 512UL
-#define HASHES_PER_KERNEL 128UL
-
-#include "assert.cu"
+#include "consts.h"
+// #include "assert.cu"
 #include "md5.cu"
 
 /* Global variables */
@@ -56,6 +44,7 @@ char g_cracked[CONST_WORD_LIMIT];
 __device__ char g_deviceCharset[CONST_CHARSET_LIMIT];
 __device__ char g_deviceCracked[CONST_WORD_LIMIT];
 
+/*
 __device__ __host__ bool next(uint8_t* length, char* word, uint32_t increment){
   uint32_t idx = 0;
   uint32_t add = 0;
@@ -81,6 +70,7 @@ __device__ __host__ bool next(uint8_t* length, char* word, uint32_t increment){
 
   return true;
 }
+*/
 
 __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01, uint32_t hash02, uint32_t hash03, uint32_t hash04){
   uint32_t idx = (blockIdx.x * blockDim.x + threadIdx.x) * HASHES_PER_KERNEL;
@@ -126,16 +116,6 @@ int main(int argc, char* argv[]){
     return -1;
   }
   
-  // /* Amount of available devices */
-  // int devices;
-  // ERROR_CHECK(cudaGetDeviceCount(&devices));
-  
-  // /* Sync type */
-  // ERROR_CHECK(cudaSetDeviceFlags(cudaDeviceScheduleSpin));
-  
-  // /* Display amount of devices */
-  // std::cout << "Notice: " << devices << " device(s) found" << std::endl;
-  
   /* Hash stored as u32 integers */
   uint32_t md5Hash[4];
   
@@ -156,9 +136,6 @@ int main(int argc, char* argv[]){
   /* Current word length = minimum word length */
   g_wordLength = CONST_WORD_LENGTH_MIN;
   
-  // /* Main device */
-  // cudaSetDevice(0);
-  
   /* Time */
   cudaEvent_t clockBegin;
   cudaEvent_t clockLast;
@@ -169,39 +146,26 @@ int main(int argc, char* argv[]){
   
   /* Current word is different on each device */
   char** words = new char*[1];
+
+    
+  /* Copy to each device */
+  ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCharset, g_charset, sizeof(uint8_t) * CONST_CHARSET_LIMIT, 0, cudaMemcpyHostToDevice));
+  ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCracked, g_cracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyHostToDevice));
   
-  // for(int device = 0; device < devices; device++){
-    // cudaSetDevice(device);
-    
-    /* Copy to each device */
-    ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCharset, g_charset, sizeof(uint8_t) * CONST_CHARSET_LIMIT, 0, cudaMemcpyHostToDevice));
-    ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCracked, g_cracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyHostToDevice));
-    
-    /* Allocate on each device */
-    ERROR_CHECK(cudaMalloc((void**)&words[0], sizeof(uint8_t) * CONST_WORD_LIMIT));
-  // }
+  /* Allocate on each device */
+  ERROR_CHECK(cudaMalloc((void**)&words[0], sizeof(uint8_t) * CONST_WORD_LIMIT));
+
   
   while(true){
     bool result = false;
     bool found = false;
     
-    // for(int device = 0; device < devices; device++){
-    //   cudaSetDevice(device);
-      
-      /* Copy current data */
-      ERROR_CHECK(cudaMemcpy(words[0], g_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
-    
-
-      // std::cout << "[DEBUG] g_wordLength=" << std::string(g_wordLength) << std::endl;
-      // std::cout << "[DEBUG] words[0]=" << std::string(words[0]) << std::endl;
-      // std::cout << "[DEBUG] g_word=" << std::string(g_word) << std::endl;
-
-      /* Start kernel */
-      md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words[0], md5Hash[0], md5Hash[1], md5Hash[2], md5Hash[3]);
-      
-      /* Global increment */
-      result = next(&g_wordLength, g_word, TOTAL_THREADS * HASHES_PER_KERNEL * TOTAL_BLOCKS);
-    // }
+    /* Copy current data */
+    ERROR_CHECK(cudaMemcpy(words[0], g_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
+    /* Start kernel */
+    md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words[0], md5Hash[0], md5Hash[1], md5Hash[2], md5Hash[3]);
+    /* Global increment */
+    result = next(&g_wordLength, g_word, TOTAL_THREADS * HASHES_PER_KERNEL * TOTAL_BLOCKS);
     
     /* Display progress */
     char word[CONST_WORD_LIMIT];
@@ -211,22 +175,16 @@ int main(int argc, char* argv[]){
     }
     
     std::cout << "Notice: currently at " << std::string(word, g_wordLength) << " (" << (uint32_t)g_wordLength << ")" << std::endl;
-    
-    // for(int device = 0; device < devices; device++){
-      // cudaSetDevice(device);
       
-      /* Synchronize now */
-      cudaDeviceSynchronize();
-      
-      /* Copy result */
-      ERROR_CHECK(cudaMemcpyFromSymbol(g_cracked, g_deviceCracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
-      
-      /* Check result */
-      if(found = *g_cracked != 0){     
-        std::cout << "Notice: cracked " << g_cracked << std::endl; 
-        break;
-      }
-    // }
+    /* Synchronize now */
+    cudaDeviceSynchronize();
+    /* Copy result */
+    ERROR_CHECK(cudaMemcpyFromSymbol(g_cracked, g_deviceCracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
+    /* Check result */
+    if(found = *g_cracked != 0){     
+      std::cout << "Notice: cracked " << g_cracked << std::endl; 
+      break;
+    }
     
     if(!result || found){
       if(!result && !found){
@@ -236,19 +194,12 @@ int main(int argc, char* argv[]){
       break;
     }
   }
-  
-  // for(int device = 0; device < devices; device++){
-  //   cudaSetDevice(device);
     
-    /* Free on each device */
-    cudaFree((void**)words[0]);
-  // }
+  /* Free on each device */
+  cudaFree((void**)words[0]);
   
   /* Free array */
   delete[] words;
-  
-  // /* Main device */
-  // cudaSetDevice(0);
   
   float milliseconds = 0;
   
