@@ -84,15 +84,17 @@ int main() {
     //     }
     // }
 
-    char *words[4] = { "abc", "bad", "dad", "3"};
-    for (int i = 0; i < 7; i++) {
-        if(strcmp("bae60998ffe4923b131e3d6e4c19993e", runHash(words[i])) == 0) {
-            // result = words[i];
-            printf("password is %s\n", words[i]);
-            break;
-        }
-    }
+    printf("runHash(bad) is %s\n", runHash("bad"));
 
-    printf("password is %s\n", result);
+    // char *words[] = { "abc", "bad", "dad", "3"};
+    // for (int i = 0; i < 4; i++) {
+    //     if(strcmp("bae60998ffe4923b131e3d6e4c19993e", runHash(words[i])) == 0) {
+    //         // result = words[i];
+    //         printf("password is %s\n", words[i]);
+    //         break;
+    //     }
+    // }
+
+    // printf("password is %s\n", result);
 
 }
