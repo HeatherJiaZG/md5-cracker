@@ -41,7 +41,7 @@ char g_cracked[CONST_WORD_LIMIT];
 __device__ char g_deviceCharset[CONST_CHARSET_LIMIT];
 __device__ char g_deviceCracked[CONST_WORD_LIMIT];
 
-__global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t* hashes){
+__global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01, uint32_t hash02, uint32_t hash03, uint32_t hash04){
   uint32_t idx = (blockIdx.x * blockDim.x + threadIdx.x) * HASHES_PER_KERNEL;
   
   /* Shared variables */
@@ -68,7 +68,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t* hashes
     
     md5Hash((unsigned char*)threadTextWord, threadWordLength, &threadHash01, &threadHash02, &threadHash03, &threadHash04);   
 
-    if(threadHash01 == hashes[0] && threadHash02 == hashes[1] && threadHash03 == hashes[2] && threadHash04 == hashes[3]){
+    if(threadHash01 == hash01 && threadHash02 == hash02 && threadHash03 == hash03 && threadHash04 == hash04){
       memcpy(g_deviceCracked, threadTextWord, threadWordLength);
     }
     
@@ -124,15 +124,15 @@ int main(int argc, char* argv[]){
   /* Allocate on each device */
   ERROR_CHECK(cudaMalloc((void**)&words[0], sizeof(uint8_t) * CONST_WORD_LIMIT));
 
-  
-  while(true){
-    bool result = false;
-    bool found = false;
+  bool result, found;
+  while(!found){
+    result = false;
+    found = false;
     
     /* Copy current data */
     ERROR_CHECK(cudaMemcpy(words[0], g_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
     /* Start kernel */
-    md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words[0], md5Hash);
+    md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words[0], md5Hash[0], md5Hash[1], md5Hash[2], md5Hash[3]);
     /* Global increment */
     result = next(&g_wordLength, g_word, TOTAL_THREADS * HASHES_PER_KERNEL * TOTAL_BLOCKS);
     
@@ -150,18 +150,21 @@ int main(int argc, char* argv[]){
     /* Copy result */
     ERROR_CHECK(cudaMemcpyFromSymbol(g_cracked, g_deviceCracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
     /* Check result */
-    if(found = *g_cracked != 0){     
-      std::cout << "Notice: cracked " << g_cracked << std::endl; 
-      break;
-    }
+    found = *g_cracked;
+    // if(found = *g_cracked != 0){     
+    //   std::cout << "Notice: cracked " << g_cracked << std::endl; 
+    //   break;
+    // }
     
-    if(!result || found){
-      if(!result && !found){
-        std::cout << "Notice: found nothing (host)" << std::endl;
-      }
-      
+    if(!result){
       break;
     }
+  }
+
+  if(!result && !found) {
+    std::cout << "Notice: found nothing (host)" << std::endl;
+  } else {
+    std::cout << "Notice: cracked " << g_cracked << std::endl; 
   }
     
   /* Free on each device */
