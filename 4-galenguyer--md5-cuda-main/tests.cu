@@ -9,15 +9,29 @@
 using namespace std;
  
 
-char *getCurrentPwd(int i, char chars[], int len, int n)
+char* appendCharToCharArray(char* array, char a)
 {
-    std::string result = "";
+    size_t len = strlen(array);
+
+    char* ret = new char[len+2];
+
+    strcpy(ret, array);    
+    ret[len] = a;
+    ret[len+1] = '\0';
+
+    return ret;
+}
+
+char *getCurrentPwd(int i, char *chars, int len, int n)
+{
+    char* result = "";
     for (int j = 0; j < n; j++) {
-        result += chars[i % len];
+        // result += chars[i % len];
+        result = appendCharToCharArray(result, chars[i % len]);
         i /= len;
     }
 
-    return result.data();
+    return result;
 }
 
 char* runHash(const char* h_str) {
@@ -85,7 +99,7 @@ int main() {
 
     // cout << "target = " << target << endl;
 
-    char chars[] = { 'a', 'b', 'd', '3', '4', '5', '6', '7', '8', '9' };
+    char *chars = "abcd123";
     int len = sizeof(chars) / sizeof(chars[0]);
     for (int i = 0; i < (int)pow(len, n); i++) {
         char *current_pwd = getCurrentPwd(i, chars, len, n);
