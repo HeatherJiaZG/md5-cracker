@@ -41,7 +41,7 @@ char g_cracked[CONST_WORD_LIMIT];
 __device__ char g_deviceCharset[CONST_CHARSET_LIMIT];
 __device__ char g_deviceCracked[CONST_WORD_LIMIT];
 
-__global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t* hash){
+__global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t* hashes){
   uint32_t idx = (blockIdx.x * blockDim.x + threadIdx.x) * HASHES_PER_KERNEL;
   
   /* Shared variables */
@@ -68,7 +68,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t* hash){
     
     md5Hash((unsigned char*)threadTextWord, threadWordLength, &threadHash01, &threadHash02, &threadHash03, &threadHash04);   
 
-    if(threadHash01 == hash[0] && threadHash02 == hash[1] && threadHash03 == hash[2] && threadHash04 == hash[3]){
+    if(threadHash01 == hashes[0] && threadHash02 == hashes[1] && threadHash03 == hashes[2] && threadHash04 == hashes[3]){
       memcpy(g_deviceCracked, threadTextWord, threadWordLength);
     }
     
