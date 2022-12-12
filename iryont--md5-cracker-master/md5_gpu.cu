@@ -1,22 +1,3 @@
-/**
- * CUDA MD5 cracker
- * Copyright (C) 2015  Konrad Kusnierz <iryont@gmail.com>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
-
 #include <stdio.h>
 #include <iostream>
 #include <time.h>
@@ -41,7 +22,7 @@ char g_cracked[CONST_WORD_LIMIT];
 __device__ char g_deviceCharset[CONST_CHARSET_LENGTH];
 __device__ char g_deviceCracked[CONST_WORD_LIMIT];
 
-__global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01, uint32_t hash02, uint32_t hash03, uint32_t hash04){
+__global__ void md5Crack(uint8_t wordLength, char* charsetWord, int hash01, int hash02, int hash03, int hash04){
   uint32_t idx = (blockIdx.x * blockDim.x + threadIdx.x) * HASHES_PER_KERNEL;
   
   /* Shared variables */
@@ -51,7 +32,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   char threadCharsetWord[CONST_WORD_LIMIT];
   char threadTextWord[CONST_WORD_LIMIT];
   uint8_t threadWordLength;
-  uint32_t threadHash01, threadHash02, threadHash03, threadHash04;
+  int threadHash01, threadHash02, threadHash03, threadHash04;
   
   /* Copy everything to local memory */
   memcpy(threadCharsetWord, charsetWord, CONST_WORD_LIMIT);
@@ -79,7 +60,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
 }
 
 
-bool runMD5CUDA(char* words, uint8_t g_wordLength, uint32_t* hashBins, bool *result, int *time) {
+bool runMD5CUDA(char* words, uint8_t g_wordLength, int* hashBins, bool *result, int *time) {
   // true: found, false: not found
   bool found = false;
 
@@ -128,23 +109,25 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, uint32_t* hashBins, bool *res
 int main(int argc, char* argv[]){
 
   int totalTime = 0; 
+  memcpy(g_charset, CONST_CHARSET, CONST_CHARSET_LENGTH);
+  // char g_charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
   /* Hash stored as u32 integers */
-  uint32_t hashBins[4];
+  int hashBins[4];
   getHashBins(argv[1], hashBins);
   
+  
   /* Fill memory */
-  memset(g_word, 0, CONST_WORD_LIMIT);
-  memset(g_cracked, 0, CONST_WORD_LIMIT);
-  memcpy(g_charset, CONST_CHARSET, CONST_CHARSET_LENGTH);
+  for (int i=0; i<CONST_WORD_LIMIT; i++) {
+    g_word[i] = 0;
+    g_cracked[i] = 0;
+  }
   
   /* Current word length = minimum word length */
-  uint8_t g_wordLength = CONST_WORD_LENGTH_MIN;
-  
+  uint8_t g_wordLength = 1;
   
   /* Current word is different on each device */
   char* words;
-
     
   /* Copy to each device */
   ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCharset, g_charset, sizeof(uint8_t) * CONST_CHARSET_LENGTH, 0, cudaMemcpyHostToDevice));
@@ -166,9 +149,6 @@ int main(int argc, char* argv[]){
     
   /* Free on each device */
   cudaFree(words);
-  
-  /* Free array */
-  delete[] words;
   
   std::cout << "Notice: computation time " << totalTime << " ms" << std::endl;
   

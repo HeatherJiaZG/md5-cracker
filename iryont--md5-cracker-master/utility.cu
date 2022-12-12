@@ -17,16 +17,16 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort =
   }
 }
 
-void getHashBins(char* target, uint32_t* hashes) {
+void getHashBins(char* target, int* hashes) {
   for(uint8_t i = 0; i < 4; i++){
     char tmp[16];
     
     strncpy(tmp, target + i * 8, 8);
     sscanf(tmp, "%x", &hashes[i]);  
-    uint32_t hash1 = (hashes[i] & 0xFF000000) >> 24;
-    uint32_t hash2 = (hashes[i] & 0x00FF0000) >> 8;
-    uint32_t hash3 = (hashes[i] & 0x0000FF00) << 8;
-    uint32_t hash4 = (hashes[i] & 0x000000FF) << 24;
+    int hash1 = (hashes[i] & 0xFF000000) >> 24;
+    int hash2 = (hashes[i] & 0x00FF0000) >> 8;
+    int hash3 = (hashes[i] & 0x0000FF00) << 8;
+    int hash4 = (hashes[i] & 0x000000FF) << 24;
     hashes[i] = hash1 | hash2 | hash3 | hash4;
   }
 }
