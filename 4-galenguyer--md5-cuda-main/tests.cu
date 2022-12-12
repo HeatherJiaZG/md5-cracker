@@ -44,26 +44,27 @@ void getOptimalThreads(struct deviceInfo * device) {
 }
 
 
-char* md5_hash(const char* h_str) {
+char* md5_hash(const char* h_str, int pwd_len) {
     char* d_str;
     unsigned char* h_res = (unsigned char*)malloc(sizeof(unsigned char)*(32 + 1));
     unsigned char* d_res;
+    char* d_res_converted;
+    char* cracked_pwd;
+    char* h_cracked_pwd = (unsigned char*)malloc(sizeof(unsigned char)*(pwd_len + 1));
     cudaMalloc((void**)&d_str, sizeof(char) * strlen(h_str));
     cudaMalloc((void**)&d_res, sizeof(char) * 32);
+    cudaMalloc((void**)&d_res_converted, sizeof(char) * 32);
+    cudaMalloc((void**)&cracked_pwd, sizeof(char) * pwd_len);
     cudaMemcpy(d_str, h_str, sizeof(char) * strlen(h_str), cudaMemcpyHostToDevice);
 
-    md5<<<device.max_blocks, device.max_threads>>>(d_str, (uint32_t)strlen(h_str), d_res);
+    md5<<<device.max_blocks, device.max_threads>>>(d_str, (uint32_t)pwd_len, d_res, d_res_converted, cracked_pwd);
 
-    cudaMemcpy(h_res, d_res, sizeof(unsigned char)*(32), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_cracked_pwd, cracked_pwd, sizeof(unsigned char)*(pwd_len), cudaMemcpyDeviceToHost);
 
     cudaFree(d_str);
     cudaFree(d_res);
 
-    char* res = (char*)malloc(sizeof(char)*32);
-    for (int i = 0; i < 16; i++) {
-        sprintf(&res[i*2], "%2.2x", h_res[i]);
-    }
-    return res;
+    return h_cracked_pwd;
 }
 
 int run_test(const char* name, const char* result, const char* expected) {
@@ -77,21 +78,6 @@ int run_test(const char* name, const char* result, const char* expected) {
 }
 
 char *target = "de8be12caf23444b451ea27be98dc8a9";
-
-void print_str(const char str[],std::string prefix,const int n, const int lenght) {
-    if (lenght == 1) {
-            for (int j = 0; j < n; j++) {
-                if (strcmp(target, md5_hash((prefix + str[j]).c_str())) == 0) {
-                    std::cout << "Cracked = " << prefix + str[j] << std::endl;
-                    break;
-                }
-            }
-        }
-    else {
-            for (int i = 0; i < n; i++)
-                print_str(str, prefix + str[i], n, lenght - 1);
-        }
-}
 
 
 int main() {
@@ -108,7 +94,7 @@ int main() {
     // run_test("md5(\"abc\")", md5_hash("abc"), "900150983cd24fb0d6963f7d28e17f72") ? passed++ : failed++;
 
     // run_test("md5(\"ba\")", md5_hash("1998012"), "de8be12caf23444b451ea27be98dc8a9") ? passed++ : failed++;
-    
+
     // run_test("md5(\"message digest\")", hash("message digest"), "f96b697d7cb7938d525a2f31aaf161d0") ? passed++ : failed++;
     // run_test("md5(\"abcdefghijklmnopqrstuvwxyz\")", \
     //     hash("abcdefghijklmnopqrstuvwxyz"), \
@@ -123,12 +109,9 @@ int main() {
     printf("Tests Passed: %i\n", passed);
     printf("Tests Failed: %i\n", failed);
 
-
-
-    int len = 2;
-    char str[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-    int n = sizeof(str);
-    print_str(str, "", n, len);
+    char * target_pwd = "a";
+    char * target_hash = "0cc175b9c0f1b6a831c399e269772661";
+    printf("Cracked pwd = %s\n", md5_hash(target_hash, strlen(target_pwd)));
 
 
     return failed;
