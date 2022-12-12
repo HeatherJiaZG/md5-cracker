@@ -175,6 +175,4 @@ int main(int argc, char* argv[]){
   
   std::cout << "Notice: computation time " << totalTime << " ms" << std::endl;
   
-  cudaEventDestroy(clockBegin);
-  cudaEventDestroy(clockLast);
 }
