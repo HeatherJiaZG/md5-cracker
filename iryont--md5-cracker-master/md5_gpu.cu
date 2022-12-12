@@ -34,43 +34,12 @@
 #include "utility.cu"
 #include "md5.cu"
 
-/* Global variables */
-uint8_t g_wordLength;
-
 char g_word[CONST_WORD_LIMIT];
 char g_charset[CONST_CHARSET_LIMIT];
 char g_cracked[CONST_WORD_LIMIT];
 
 __device__ char g_deviceCharset[CONST_CHARSET_LIMIT];
 __device__ char g_deviceCracked[CONST_WORD_LIMIT];
-
-/*
-__device__ __host__ bool next(uint8_t* length, char* word, uint32_t increment){
-  uint32_t idx = 0;
-  uint32_t add = 0;
-  
-  while(increment > 0 && idx < CONST_WORD_LIMIT){
-    if(idx >= *length && increment > 0){
-      increment--;
-    }
-    
-    add = increment + word[idx];
-    word[idx] = add % CONST_CHARSET_LENGTH;
-    increment = add / CONST_CHARSET_LENGTH;
-    idx++;
-  }
-  
-  if(idx > *length){
-    *length = idx;
-  }
-  
-  if(idx > CONST_WORD_LENGTH_MAX){
-    return false;
-  }
-
-  return true;
-}
-*/
 
 __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01, uint32_t hash02, uint32_t hash03, uint32_t hash04){
   uint32_t idx = (blockIdx.x * blockDim.x + threadIdx.x) * HASHES_PER_KERNEL;
@@ -134,7 +103,7 @@ int main(int argc, char* argv[]){
   memcpy(g_charset, CONST_CHARSET, CONST_CHARSET_LENGTH);
   
   /* Current word length = minimum word length */
-  g_wordLength = CONST_WORD_LENGTH_MIN;
+  uint8_t g_wordLength = CONST_WORD_LENGTH_MIN;
   
   /* Time */
   cudaEvent_t clockBegin;
