@@ -1,12 +1,7 @@
 #include <cuda.h>
 #include <stdint.h>
-#include <string>
-
-#include <iostream>
+#include <string.h>
 #include "md5.cu"
-
-using namespace std;
- 
 
 char* hash(const char* h_str) {
     char* d_str;
@@ -45,10 +40,8 @@ int main() {
     int passed = 0, failed = 0;
 
     // run_test("md5(\"\")", hash(""), "d41d8cd98f00b204e9800998ecf8427e") ? passed++ : failed++;
-    run_test("md5(\"a\")", hash("a"), "0cc175b9c0f1b6a831c399e269772661") ? passed++ : failed++;
-    // run_test("md5(\"abc\")", hash("abc"), "900150983cd24fb0d6963f7d28e17f72") ? passed++ : failed++;
-
-    // run_test("md5(\"bad\")", hash("bad"), "bae60998ffe4923b131e3d6e4c19993e") ? passed++ : failed++;
+    // run_test("md5(\"a\")", hash("a"), "0cc175b9c0f1b6a831c399e269772661") ? passed++ : failed++;
+    run_test("md5(\"abc\")", hash("abc"), "900150983cd24fb0d6963f7d28e17f72") ? passed++ : failed++;
     // run_test("md5(\"message digest\")", hash("message digest"), "f96b697d7cb7938d525a2f31aaf161d0") ? passed++ : failed++;
     // run_test("md5(\"abcdefghijklmnopqrstuvwxyz\")", \
     //     hash("abcdefghijklmnopqrstuvwxyz"), \
@@ -63,37 +56,4 @@ int main() {
     printf("Tests Passed: %i\n", passed);
     printf("Tests Failed: %i\n", failed);
     return failed;
-
-
-    // int n = stoi(argv[1]); // password length
-    // int n=3;
-    // std::string target = argv[2]; // target hash
-    // char *target = "bae60998ffe4923b131e3d6e4c19993e";
-    // char* result = "";
-
-    // cout << "target = " << target << endl;
-
-    // char chars[] = { 'a', 'b', 'd', '3', '4', '5', '6', '7', '8', '9' };
-    // int len = sizeof(chars) / sizeof(chars[0]);
-    // for (int i = 0; i < (int)pow(len, n); i++) {
-    //     char *current_pwd = getCurrentPwd(i, chars, len, n);
-    //     if(strcmp("bae60998ffe4923b131e3d6e4c19993e", runHash(current_pwd)) == 0) {
-    //         result = current_pwd;
-    //         break;
-    //     }
-    // }
-
-    // printf("runHash(bad) is %s\n", runHash("bad"));
-
-    // char *words[] = { "abc", "bad", "dad", "3"};
-    // for (int i = 0; i < 4; i++) {
-    //     if(strcmp("bae60998ffe4923b131e3d6e4c19993e", runHash(words[i])) == 0) {
-    //         // result = words[i];
-    //         printf("password is %s\n", words[i]);
-    //         break;
-    //     }
-    // }
-
-    // printf("password is %s\n", result);
-
 }
