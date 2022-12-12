@@ -18,25 +18,21 @@ __device__ void md5_init(struct md5_context* ctx) {
     ctx->c = 0x98badcfe;
     ctx->d = 0x10325476;
 
-    ctx->count[0] = 0;
-    ctx->count[1] = 0;
-    ctx->count[2] = 0;
-    ctx->count[3] = 0;
+    // ctx->count[0] = 0;
+    // ctx->count[1] = 0;
+    // ctx->count[2] = 0;
+    // ctx->count[3] = 0;
 }
 
-__device__ void md5_update(struct md5_context* ctx, uint32_t a1, uint32_t b1, uint32_t c1, uint32_t d1) {
+// __device__ void md5_update(struct md5_context* ctx, uint32_t a1, uint32_t b1, uint32_t c1, uint32_t d1) {
 
-    ctx->threadHash[0] = a1;
-    ctx->threadHash[1] = b1;
-    ctx->threadHash[2] = c1;
-    ctx->threadHash[3] = d1;
-}
+//     ctx->threadHash[0] = a1;
+//     ctx->threadHash[1] = b1;
+//     ctx->threadHash[2] = c1;
+//     ctx->threadHash[3] = d1;
+// }
 
-__device__ inline void md5Hash(struct md5_context* ctx, unsigned char* data, uint32_t length, uint32_t *a1, uint32_t *b1, uint32_t *c1, uint32_t *d1){
-  // const uint32_t a0 = 0x67452301;
-  // const uint32_t b0 = 0xEFCDAB89;
-  // const uint32_t c0 = 0x98BADCFE;
-  // const uint32_t d0 = 0x10325476;
+__device__ inline void md5Hash(struct md5_context* ctx, unsigned char* data, uint32_t length){
 
   uint32_t a = 0;
   uint32_t b = 0;
@@ -170,8 +166,8 @@ __device__ inline void md5Hash(struct md5_context* ctx, unsigned char* data, uin
   c += ctx->c;
   d += ctx->d;
 
-  *a1 = a;
-  *b1 = b;
-  *c1 = c;
-  *d1 = d;
+  ctx->threadHash[0] = a;
+  ctx->threadHash[1] = b;
+  ctx->threadHash[2] = c;
+  ctx->threadHash[3] = d;
 }
