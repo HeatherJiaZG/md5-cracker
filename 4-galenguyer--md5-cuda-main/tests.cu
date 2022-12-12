@@ -9,14 +9,15 @@
 using namespace std;
  
 
-std::string getCurrentPwd(int i, char chars[], int len, int n)
+char *getCurrentPwd(int i, char chars[], int len, int n)
 {
     std::string result = "";
     for (int j = 0; j < n; j++) {
         result += chars[i % len];
         i /= len;
     }
-    return result;
+
+    return result.data();
 }
 
 char* runHash(const char* h_str) {
@@ -80,15 +81,15 @@ int main() {
     int n=3;
     // std::string target = argv[2]; // target hash
     char target[] = "bae60998ffe4923b131e3d6e4c19993e";
-    std::string result = "";
+    char* result = "";
 
     cout << "target = " << target << endl;
 
     char chars[] = { 'a', 'b', 'd', '3', '4', '5', '6', '7', '8', '9' };
     int len = sizeof(chars) / sizeof(chars[0]);
     for (int i = 0; i < (int)pow(len, n); i++) {
-        std::string current_pwd = getCurrentPwd(i, chars, len, n);
-        if(strcmp(target, runHash(current_pwd)) == 0) {
+        char *current_pwd = getCurrentPwd(i, chars, len, n);
+        if(strcmp("bae60998ffe4923b131e3d6e4c19993e", runHash(current_pwd)) == 0) {
             result = current_pwd;
             break;
         }
