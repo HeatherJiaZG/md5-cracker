@@ -1,2 +1,2 @@
 tests: 
-	nvcc tests.cu
+	nvcc tests.cu -std=c++10
