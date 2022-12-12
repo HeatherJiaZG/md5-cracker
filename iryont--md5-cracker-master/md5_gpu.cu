@@ -65,10 +65,10 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   struct md5_context context;
   md5_init(&context);
 
-  ctx->threadHash[0] = threadHash01;
-  ctx->threadHash[1] = threadHash02;
-  ctx->threadHash[2] = threadHash03;
-  ctx->threadHash[3] = threadHash04;
+  context.threadHash[0] = threadHash01;
+  context.threadHash[1] = threadHash02;
+  context.threadHash[2] = threadHash03;
+  context.threadHash[3] = threadHash04;
 
   md5Hash(&context, (unsigned char*)threadTextWord, threadWordLength);   
 
