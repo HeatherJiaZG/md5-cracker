@@ -78,6 +78,16 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   }
 }
 
+void getHashBins(char* target, uint32_t* hashes) {
+  for(uint8_t i = 0; i < 4; i++){
+    char tmp[16];
+    
+    strncpy(tmp, target + i * 8, 8);
+    sscanf(tmp, "%x", &hashes[i]);   
+    hashes[i] = (hashes[i] & 0xFF000000) >> 24 | (hashes[i] & 0x00FF0000) >> 8 | (hashes[i] & 0x0000FF00) << 8 | (hashes[i] & 0x000000FF) << 24;
+  }
+}
+
 int main(int argc, char* argv[]){
   /* Check arguments */
   if(argc != 2 || strlen(argv[1]) != 32){
@@ -87,15 +97,7 @@ int main(int argc, char* argv[]){
   
   /* Hash stored as u32 integers */
   uint32_t md5Hash[4];
-  
-  /* Parse argument */
-  for(uint8_t i = 0; i < 4; i++){
-    char tmp[16];
-    
-    strncpy(tmp, argv[1] + i * 8, 8);
-    sscanf(tmp, "%x", &md5Hash[i]);   
-    md5Hash[i] = (md5Hash[i] & 0xFF000000) >> 24 | (md5Hash[i] & 0x00FF0000) >> 8 | (md5Hash[i] & 0x0000FF00) << 8 | (md5Hash[i] & 0x000000FF) << 24;
-  }
+  getHashBins(argv[1], md5Hash);
   
   /* Fill memory */
   memset(g_word, 0, CONST_WORD_LIMIT);
@@ -124,10 +126,10 @@ int main(int argc, char* argv[]){
   /* Allocate on each device */
   ERROR_CHECK(cudaMalloc((void**)&words[0], sizeof(uint8_t) * CONST_WORD_LIMIT));
 
-  bool result, found;
-  while(!found){
-    result = false;
-    found = false;
+  
+  while(true){
+    bool result = false;
+    bool found = false;
     
     /* Copy current data */
     ERROR_CHECK(cudaMemcpy(words[0], g_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
@@ -150,21 +152,18 @@ int main(int argc, char* argv[]){
     /* Copy result */
     ERROR_CHECK(cudaMemcpyFromSymbol(g_cracked, g_deviceCracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
     /* Check result */
-    found = *g_cracked;
-    // if(found = *g_cracked != 0){     
-    //   std::cout << "Notice: cracked " << g_cracked << std::endl; 
-    //   break;
-    // }
-    
-    if(!result){
+    if(found = *g_cracked != 0){     
+      std::cout << "Notice: cracked " << g_cracked << std::endl; 
       break;
     }
-  }
-
-  if(!result && !found) {
-    std::cout << "Notice: found nothing (host)" << std::endl;
-  } else {
-    std::cout << "Notice: cracked " << g_cracked << std::endl; 
+    
+    if(!result || found){
+      if(!result && !found){
+        std::cout << "Notice: found nothing (host)" << std::endl;
+      }
+      
+      break;
+    }
   }
     
   /* Free on each device */
