@@ -1,15 +1,14 @@
 #include <cuda.h>
 #include <stdint.h>
-#include <string.h>
 #include <string>
-#include <bits/stdc++.h>
+
 #include <iostream>
 #include "md5.cu"
 
 using namespace std;
  
 
-char* runHash(const char* h_str) {
+char* hash(const char* h_str) {
     char* d_str;
     unsigned char* h_res = (unsigned char*)malloc(sizeof(unsigned char)*(32 + 1));
     unsigned char* d_res;
@@ -43,10 +42,10 @@ int run_test(const char* name, const char* result, const char* expected) {
 
 
 int main() {
-    // int passed = 0, failed = 0;
+    int passed = 0, failed = 0;
 
     // run_test("md5(\"\")", hash(""), "d41d8cd98f00b204e9800998ecf8427e") ? passed++ : failed++;
-    // run_test("md5(\"a\")", hash("a"), "0cc175b9c0f1b6a831c399e269772661") ? passed++ : failed++;
+    run_test("md5(\"a\")", hash("a"), "0cc175b9c0f1b6a831c399e269772661") ? passed++ : failed++;
     // run_test("md5(\"abc\")", hash("abc"), "900150983cd24fb0d6963f7d28e17f72") ? passed++ : failed++;
 
     // run_test("md5(\"bad\")", hash("bad"), "bae60998ffe4923b131e3d6e4c19993e") ? passed++ : failed++;
@@ -61,13 +60,13 @@ int main() {
     //     hash("12345678901234567890123456789012345678901234567890123456789012345678901234567890"), \
     //     "57edf4a22be3c955ac49da2e2107b67a") ? passed++ : failed++;
 
-    // printf("Tests Passed: %i\n", passed);
-    // printf("Tests Failed: %i\n", failed);
-    // return failed;
+    printf("Tests Passed: %i\n", passed);
+    printf("Tests Failed: %i\n", failed);
+    return failed;
 
 
     // int n = stoi(argv[1]); // password length
-    int n=3;
+    // int n=3;
     // std::string target = argv[2]; // target hash
     // char *target = "bae60998ffe4923b131e3d6e4c19993e";
     // char* result = "";
@@ -84,7 +83,7 @@ int main() {
     //     }
     // }
 
-    printf("runHash(bad) is %s\n", runHash("bad"));
+    // printf("runHash(bad) is %s\n", runHash("bad"));
 
     // char *words[] = { "abc", "bad", "dad", "3"};
     // for (int i = 0; i < 4; i++) {
