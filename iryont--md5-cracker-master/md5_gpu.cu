@@ -41,7 +41,7 @@ char g_cracked[CONST_WORD_LIMIT];
 __device__ char g_deviceCharset[CONST_CHARSET_LIMIT];
 __device__ char g_deviceCracked[CONST_WORD_LIMIT];
 
-__global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01, uint32_t hash02, uint32_t hash03, uint32_t hash04){
+__global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t* hash){
   uint32_t idx = (blockIdx.x * blockDim.x + threadIdx.x) * HASHES_PER_KERNEL;
   
   /* Shared variables */
@@ -68,7 +68,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
     
     md5Hash((unsigned char*)threadTextWord, threadWordLength, &threadHash01, &threadHash02, &threadHash03, &threadHash04);   
 
-    if(threadHash01 == hash01 && threadHash02 == hash02 && threadHash03 == hash03 && threadHash04 == hash04){
+    if(threadHash01 == hash[0] && threadHash02 == hash[1] && threadHash03 == hash[2] && threadHash04 == hash[3]){
       memcpy(g_deviceCracked, threadTextWord, threadWordLength);
     }
     
@@ -132,7 +132,7 @@ int main(int argc, char* argv[]){
     /* Copy current data */
     ERROR_CHECK(cudaMemcpy(words[0], g_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
     /* Start kernel */
-    md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words[0], md5Hash[0], md5Hash[1], md5Hash[2], md5Hash[3]);
+    md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words[0], md5Hash);
     /* Global increment */
     result = next(&g_wordLength, g_word, TOTAL_THREADS * HASHES_PER_KERNEL * TOTAL_BLOCKS);
     
