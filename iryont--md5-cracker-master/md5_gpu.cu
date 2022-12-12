@@ -79,11 +79,59 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
 }
 
 
+bool runMD5CUDA(char** words, uint8_t g_wordLength, uint32_t* hashBins, bool *result, int *time) {
+  // true: found, false: not found
+  bool found = false;
+
+  // Start Execution Time
+  cudaEvent_t start, stop;
+  float elapsedTime;
+  cudaEventCreate(&start); 
+  cudaEventRecord(start, 0);
+
+  /* Copy current data */
+  ERROR_CHECK(cudaMemcpy(words[0], g_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
+  /* Start kernel */
+  md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words[0], hashBins[0], hashBins[1], hashBins[2], hashBins[3]);
+  /* Global increment */
+  *result = next(&g_wordLength, g_word, TOTAL_THREADS * HASHES_PER_KERNEL * TOTAL_BLOCKS);
+  
+  /* Display progress */
+  char word[CONST_WORD_LIMIT];
+  
+  for(int i = 0; i < g_wordLength; i++){
+    word[i] = g_charset[g_word[i]];
+  }
+    
+  /* Synchronize now */
+  cudaDeviceSynchronize();
+  /* Copy result */
+  ERROR_CHECK(cudaMemcpyFromSymbol(g_cracked, g_deviceCracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
+ 
+  /* Check result */
+  if(*g_cracked != 0){     
+    std::cout << "Notice: cracked " << g_cracked << std::endl; 
+    found = true;
+  }
+
+  // Stop Execution Time
+  cudaEventCreate(&stop);
+  cudaEventRecord(stop, 0); 
+  cudaEventSynchronize(stop); 
+  cudaEventElapsedTime( &elapsedTime, start, stop);
+
+  *time += elapsedTime;
+  return found;
+}
+
+
 int main(int argc, char* argv[]){
 
+  int totalTime = 0; 
+
   /* Hash stored as u32 integers */
-  uint32_t md5Hash[4];
-  getHashBins(argv[1], md5Hash);
+  uint32_t hashBins[4];
+  getHashBins(argv[1], hashBins);
   
   /* Fill memory */
   memset(g_word, 0, CONST_WORD_LIMIT);
@@ -93,13 +141,6 @@ int main(int argc, char* argv[]){
   /* Current word length = minimum word length */
   uint8_t g_wordLength = CONST_WORD_LENGTH_MIN;
   
-  /* Time */
-  cudaEvent_t clockBegin;
-  cudaEvent_t clockLast;
-  
-  cudaEventCreate(&clockBegin);
-  cudaEventCreate(&clockLast);
-  cudaEventRecord(clockBegin, 0);
   
   /* Current word is different on each device */
   char** words = new char*[1];
@@ -115,31 +156,7 @@ int main(int argc, char* argv[]){
   
   while(true){
     bool result = false;
-    bool found = false;
-    
-    /* Copy current data */
-    ERROR_CHECK(cudaMemcpy(words[0], g_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
-    /* Start kernel */
-    md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words[0], md5Hash[0], md5Hash[1], md5Hash[2], md5Hash[3]);
-    /* Global increment */
-    result = next(&g_wordLength, g_word, TOTAL_THREADS * HASHES_PER_KERNEL * TOTAL_BLOCKS);
-    
-    /* Display progress */
-    char word[CONST_WORD_LIMIT];
-    
-    for(int i = 0; i < g_wordLength; i++){
-      word[i] = g_charset[g_word[i]];
-    }
-      
-    /* Synchronize now */
-    cudaDeviceSynchronize();
-    /* Copy result */
-    ERROR_CHECK(cudaMemcpyFromSymbol(g_cracked, g_deviceCracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
-    /* Check result */
-    if(found = *g_cracked != 0){     
-      std::cout << "Notice: cracked " << g_cracked << std::endl; 
-      break;
-    }
+    bool found = runMD5CUDA(words, g_wordLength, hashBins, &result, &totalTime);
     
     if(!result || found){
       if(!result && !found){
@@ -156,13 +173,7 @@ int main(int argc, char* argv[]){
   /* Free array */
   delete[] words;
   
-  float milliseconds = 0;
-  
-  cudaEventRecord(clockLast, 0);
-  cudaEventSynchronize(clockLast);
-  cudaEventElapsedTime(&milliseconds, clockBegin, clockLast);
-  
-  std::cout << "Notice: computation time " << milliseconds << " ms" << std::endl;
+  std::cout << "Notice: computation time " << totalTime << " ms" << std::endl;
   
   cudaEventDestroy(clockBegin);
   cudaEventDestroy(clockLast);
