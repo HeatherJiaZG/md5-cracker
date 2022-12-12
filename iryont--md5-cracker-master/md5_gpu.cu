@@ -45,14 +45,14 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, char* target){
   uint32_t idx = (blockIdx.x * blockDim.x + threadIdx.x) * HASHES_PER_KERNEL;
   
   /* Hash stored as u32 integers */
-  uint32_t md5Hash[4];
+  uint32_t md5HashBins[4];
   /* Parse argument */
   for(uint8_t i = 0; i < 4; i++){
     char tmp[16];
 
     strncpy(tmp, target + i * 8, 8);
-    sscanf(tmp, "%x", &md5Hash[i]);   
-    md5Hash[i] = (md5Hash[i] & 0xFF000000) >> 24 | (md5Hash[i] & 0x00FF0000) >> 8 | (md5Hash[i] & 0x0000FF00) << 8 | (md5Hash[i] & 0x000000FF) << 24;
+    sscanf(tmp, "%x", &md5HashBins[i]);   
+    md5HashBins[i] = (md5HashBins[i] & 0xFF000000) >> 24 | (md5HashBins[i] & 0x00FF0000) >> 8 | (md5HashBins[i] & 0x0000FF00) << 8 | (md5HashBins[i] & 0x000000FF) << 24;
   }
 
   /* Shared variables */
@@ -79,7 +79,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, char* target){
     
     md5Hash((unsigned char*)threadTextWord, threadWordLength, &threadHash01, &threadHash02, &threadHash03, &threadHash04);   
 
-    if(threadHash01 == md5Hash[0] && threadHash02 == md5Hash[1] && threadHash03 == md5Hash[2] && threadHash04 == md5Hash[3]){
+    if(threadHash01 == md5HashBins[0] && threadHash02 == md5HashBins[1] && threadHash03 == md5HashBins[2] && threadHash04 == md5HashBins[3]){
       memcpy(g_deviceCracked, threadTextWord, threadWordLength);
     }
     
