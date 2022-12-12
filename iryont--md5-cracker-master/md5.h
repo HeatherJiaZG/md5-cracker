@@ -1,6 +1,22 @@
 #ifndef MD5_H
 #define MD5_H
 
+struct md5_context {
+    // state
+    unsigned int a;
+    unsigned int b;
+    unsigned int c;
+    unsigned int d;
+    // number of bits, modulo 2^64 (lsb first)
+    unsigned int count[4];
+    uint32_t threadHash[4];
+    // input buffer
+    unsigned char input[64];
+    // current block
+    unsigned int block[16];
+};
+
+
 /* F, G and H are basic MD5 functions: selection, majority, parity */
 #define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
 #define G(x, y, z) (((x) & (z)) | ((y) & (~z)))

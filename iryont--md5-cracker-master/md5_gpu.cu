@@ -14,6 +14,7 @@
 #include "consts.h"
 #include "utility.cu"
 #include "md5.cu"
+#include "md5.h"
 
 char g_word[CONST_WORD_LIMIT];
 char g_charset[CONST_CHARSET_LENGTH];
@@ -61,7 +62,12 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
     threadTextWord[i] = sharedCharset[threadCharsetWord[i]];
   }
   
-  md5Hash((unsigned char*)threadTextWord, threadWordLength, &threadHash01, &threadHash02, &threadHash03, &threadHash04);   
+  struct md5_context context;
+  md5_init(&context);
+
+  // md5_update(&context, threadHash01, threadHash02, threadHash03, threadHash04);
+
+  md5Hash(&context, (unsigned char*)threadTextWord, threadWordLength, &threadHash01, &threadHash02, &threadHash03, &threadHash04);   
 
   if(threadHash01 == hash01 && threadHash02 == hash02 && threadHash03 == hash03 && threadHash04 == hash04){
     memcpy(g_deviceCracked, threadTextWord, threadWordLength);
