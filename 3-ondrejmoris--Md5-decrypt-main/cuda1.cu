@@ -338,12 +338,15 @@ __global__ void thread_hierarchy(int len, uint8_t* hash, bool* canRunCuda)
         //uint8_t* result = new uint8_t[16];
         uint8_t result[16];
         //int alphaLen = 26;
-        char alphabet[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+        // char alphabet[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+        char alphabet[] = {'a','b','c','d','e'};
 
-        int charsSize = 36;
-        char chars[36] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+        // int charsSize = 36;
+        // char chars[36] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+        int charsSize = 6;
+        char chars[6] = {'0','a','b','c','d','e'};
         
-        unsigned int i = (blockIdx.x * 60000) + (512*(blockIdx.y) + threadIdx.y);
+        unsigned int i = (blockIdx.x * 60000) + (1024*(blockIdx.y) + threadIdx.y);
         
         char buffer[32];
         int arraySize = itoaa(i, buffer, 26);
@@ -389,8 +392,8 @@ void run_cuda(uint8_t* hash, int len, unsigned int p)
     int gridSize = 0;
     int gridSizeX = 0;
 
-    if(p > 512){
-		gridSize = ceil(p / 512) + 1;
+    if(p > 1024){
+		gridSize = ceil(p / 1024) + 1;
 	}else{
 		gridSize = 1;
 	}
@@ -421,7 +424,7 @@ void run_cuda(uint8_t* hash, int len, unsigned int p)
 	// Thread creation from selected kernel:
 	// first parameter dim3 is grid dimension
 	// second parameter dim3 is block dimension
-    thread_hierarchy<<< dim3( gridSizeX, gridSize ), dim3( 1, 512 )>>>(len, differenceArray, canRunCuda);
+    thread_hierarchy<<< dim3( gridSizeX, gridSize ), dim3( 1, 1024 )>>>(len, differenceArray, canRunCuda);
 
 	if ( ( cerr = cudaGetLastError() ) != cudaSuccess )
 		printf( "CUDA Error [%d] - '%s'\n", __LINE__, cudaGetErrorString( cerr ) );

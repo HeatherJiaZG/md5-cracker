@@ -52,7 +52,7 @@ int main(int argc, char** argv)
     char hash[32];
     strcpy(hash, argv[2]);
 
-    unsigned int p = pow(26,len);
+    unsigned int p = pow(10,len);
 
     uint8_t *result = (uint8_t*)malloc(sizeof(uint8_t)*16);
 
