@@ -85,15 +85,24 @@ int main() {
 
     // cout << "target = " << target << endl;
 
-    char chars[] = { 'a', 'b', 'd', '3', '4', '5', '6', '7', '8', '9' };
-    int len = sizeof(chars) / sizeof(chars[0]);
-    for (int i = 0; i < (int)pow(len, n); i++) {
-        char *current_pwd = getCurrentPwd(i, chars, len, n);
-        if(strcmp("bae60998ffe4923b131e3d6e4c19993e", runHash(current_pwd)) == 0) {
-            result = current_pwd;
+    // char chars[] = { 'a', 'b', 'd', '3', '4', '5', '6', '7', '8', '9' };
+    // int len = sizeof(chars) / sizeof(chars[0]);
+    // for (int i = 0; i < (int)pow(len, n); i++) {
+    //     char *current_pwd = getCurrentPwd(i, chars, len, n);
+    //     if(strcmp("bae60998ffe4923b131e3d6e4c19993e", runHash(current_pwd)) == 0) {
+    //         result = current_pwd;
+    //         break;
+    //     }
+    // }
+
+    char words[] = { 'abc', 'bad', 'dad', '3', '4', '5', '6', '7' };
+    for (int i = 0; i < 7; i++) {
+        if(strcmp("bae60998ffe4923b131e3d6e4c19993e", runHash(words[i])) == 0) {
+            result = words[i];
             break;
         }
     }
+
     printf("password is %s\n", result);
 
 }
