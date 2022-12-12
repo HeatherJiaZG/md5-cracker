@@ -247,7 +247,7 @@ __device__ void genPostfix(char* target, int id, const int len, const char* symb
 
 
 
-__global__ void md5(const char* target_hash, const uint32_t len, unsigned char* result, char* d_res_converted) {
+__global__ void md5(const char* target_hash, const uint32_t len, unsigned char* result, char* d_res_converted, char* cracked_pwd) {
 
     extern __shared__ char share[];
 

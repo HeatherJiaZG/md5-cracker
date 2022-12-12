@@ -50,7 +50,7 @@ char* md5_hash(const char* h_str, int pwd_len) {
     unsigned char* d_res;
     char* d_res_converted;
     char* cracked_pwd;
-    char* h_cracked_pwd = (unsigned char*)malloc(sizeof(unsigned char)*(pwd_len + 1));
+    char* h_cracked_pwd = (char*)malloc(sizeof(char)*(pwd_len + 1));
     cudaMalloc((void**)&d_str, sizeof(char) * strlen(h_str));
     cudaMalloc((void**)&d_res, sizeof(char) * 32);
     cudaMalloc((void**)&d_res_converted, sizeof(char) * 32);
