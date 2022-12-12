@@ -79,7 +79,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
 }
 
 
-bool runMD5CUDA(char** words, uint8_t g_wordLength, uint32_t* hashBins, bool *result, int *time) {
+bool runMD5CUDA(char* words, uint8_t g_wordLength, uint32_t* hashBins, bool *result, int *time) {
   // true: found, false: not found
   bool found = false;
 
@@ -90,9 +90,9 @@ bool runMD5CUDA(char** words, uint8_t g_wordLength, uint32_t* hashBins, bool *re
   cudaEventRecord(start, 0);
 
   /* Copy current data */
-  ERROR_CHECK(cudaMemcpy(words[0], g_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
+  ERROR_CHECK(cudaMemcpy(words, g_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
   /* Start kernel */
-  md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words[0], hashBins[0], hashBins[1], hashBins[2], hashBins[3]);
+  md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words, hashBins[0], hashBins[1], hashBins[2], hashBins[3]);
   /* Global increment */
   *result = next(&g_wordLength, g_word, TOTAL_THREADS * HASHES_PER_KERNEL * TOTAL_BLOCKS);
   
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]){
   
   
   /* Current word is different on each device */
-  char** words = new char*[1];
+  char* words;
 
     
   /* Copy to each device */
@@ -151,7 +151,7 @@ int main(int argc, char* argv[]){
   ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCracked, g_cracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyHostToDevice));
   
   /* Allocate on each device */
-  ERROR_CHECK(cudaMalloc((void**)&words[0], sizeof(uint8_t) * CONST_WORD_LIMIT));
+  ERROR_CHECK(cudaMalloc((void**)&words, sizeof(uint8_t) * CONST_WORD_LIMIT));
 
   bool result = true;
   bool found = false;
@@ -159,13 +159,13 @@ int main(int argc, char* argv[]){
   while(result && !found){
     found = runMD5CUDA(words, g_wordLength, hashBins, &result, &totalTime);
   }
-  
+
   if(!result && !found){
     std::cout << "Notice: found nothing (host)" << std::endl;
   }
     
   /* Free on each device */
-  cudaFree((void**)words[0]);
+  cudaFree(words);
   
   /* Free array */
   delete[] words;
