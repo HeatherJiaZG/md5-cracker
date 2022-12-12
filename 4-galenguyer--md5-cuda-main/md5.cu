@@ -225,11 +225,10 @@ __device__ void md5_finalize(struct md5_context* ctx, struct md5_digest* digest)
 #define  int64_t long long
 #define uint64_t unsigned long long
 #define FIXED      2  //log64(THREADNUM*BLOCKNUM)
-class uint128_t;
 static __shared__ char symbols[64];
 
 //generate the string depending on ID and round
-__device__ void genString(char* target, uint128_t it, const int len, const char* symbols){
+__device__ void genString(char* target, int it, const int len, const char* symbols){
 	#pragma unroll 4
 	for(int i = 0; i < len-FIXED; it >>= 6, ++i)
 		target[i] = symbols[it.val[0]&63];
@@ -269,13 +268,13 @@ __global__ void md5(const char* target_hash, const uint32_t len, unsigned char* 
 	__syncthreads();
 
 	//Will hold the maximum number of iterations needed
-	uint128_t max(1);
+	int max(1);
 	//returns number of fixed symbols, currently 3
 	genPostfix(myString, id, len, symbols);
 
 	//number of iterations 64^(len-fix)
 	max <<= 6*(len-FIXED);
-	for(uint128_t it; it < max; ++it){
+	for(int it; it < max; ++it){
             //generate the prefix for the current iteration
             genString(myString, it, len, symbols);
 
