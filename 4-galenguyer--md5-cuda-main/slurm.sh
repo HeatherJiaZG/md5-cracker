@@ -11,4 +11,4 @@ module load nvidia/cuda
 
 make
 
-./tests
+./a.out
