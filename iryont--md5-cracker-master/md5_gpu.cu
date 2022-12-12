@@ -35,17 +35,17 @@
 #include "md5.cu"
 
 char g_word[CONST_WORD_LIMIT];
-char g_charset[CONST_CHARSET_LIMIT];
+char g_charset[CONST_CHARSET_LENGTH];
 char g_cracked[CONST_WORD_LIMIT];
 
-__device__ char g_deviceCharset[CONST_CHARSET_LIMIT];
+__device__ char g_deviceCharset[CONST_CHARSET_LENGTH];
 __device__ char g_deviceCracked[CONST_WORD_LIMIT];
 
 __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01, uint32_t hash02, uint32_t hash03, uint32_t hash04){
   uint32_t idx = (blockIdx.x * blockDim.x + threadIdx.x) * HASHES_PER_KERNEL;
   
   /* Shared variables */
-  __shared__ char sharedCharset[CONST_CHARSET_LIMIT];
+  __shared__ char sharedCharset[CONST_CHARSET_LENGTH];
   
   /* Thread variables */
   char threadCharsetWord[CONST_WORD_LIMIT];
@@ -56,7 +56,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   /* Copy everything to local memory */
   memcpy(threadCharsetWord, charsetWord, CONST_WORD_LIMIT);
   memcpy(&threadWordLength, &wordLength, sizeof(uint8_t));
-  memcpy(sharedCharset, g_deviceCharset, sizeof(uint8_t) * CONST_CHARSET_LIMIT);
+  memcpy(sharedCharset, g_deviceCharset, sizeof(uint8_t) * CONST_CHARSET_LENGTH);
   
   /* Increment current word by thread index */
   next(&threadWordLength, threadCharsetWord, idx);
@@ -78,27 +78,9 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   }
 }
 
-void getHashBins(char* target, uint32_t* hashes) {
-  for(uint8_t i = 0; i < 4; i++){
-    char tmp[16];
-    
-    strncpy(tmp, target + i * 8, 8);
-    sscanf(tmp, "%x", &hashes[i]);  
-    uint32_t hash1 = (hashes[i] & 0xFF000000) >> 24;
-    uint32_t hash2 = (hashes[i] & 0x00FF0000) >> 8;
-    uint32_t hash3 = (hashes[i] & 0x0000FF00) << 8;
-    uint32_t hash4 = (hashes[i] & 0x000000FF) << 24;
-    hashes[i] = hash1 | hash2 | hash3 | hash4;
-  }
-}
 
 int main(int argc, char* argv[]){
-  /* Check arguments */
-  if(argc != 2 || strlen(argv[1]) != 32){
-    std::cout << argv[0] << " <md5_hash>" << std::endl;
-    return -1;
-  }
-  
+
   /* Hash stored as u32 integers */
   uint32_t md5Hash[4];
   getHashBins(argv[1], md5Hash);
@@ -124,7 +106,7 @@ int main(int argc, char* argv[]){
 
     
   /* Copy to each device */
-  ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCharset, g_charset, sizeof(uint8_t) * CONST_CHARSET_LIMIT, 0, cudaMemcpyHostToDevice));
+  ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCharset, g_charset, sizeof(uint8_t) * CONST_CHARSET_LENGTH, 0, cudaMemcpyHostToDevice));
   ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCracked, g_cracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyHostToDevice));
   
   /* Allocate on each device */
@@ -148,8 +130,6 @@ int main(int argc, char* argv[]){
     for(int i = 0; i < g_wordLength; i++){
       word[i] = g_charset[g_word[i]];
     }
-    
-    std::cout << "Notice: currently at " << std::string(word, g_wordLength) << " (" << (uint32_t)g_wordLength << ")" << std::endl;
       
     /* Synchronize now */
     cudaDeviceSynchronize();

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define CONST_WORD_LIMIT 10
+#define CONST_WORD_LIMIT 7
 #define CONST_CHARSET_LIMIT 100
 
 #define CONST_CHARSET "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
