@@ -65,14 +65,9 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   struct md5_context context;
   md5_init(&context);
 
-  context.threadHash[0] = threadHash01;
-  context.threadHash[1] = threadHash02;
-  context.threadHash[2] = threadHash03;
-  context.threadHash[3] = threadHash04;
-
   md5Hash(&context, (unsigned char*)threadTextWord, threadWordLength);   
 
-  if(threadHash01 == hash01 && threadHash02 == hash02 && threadHash03 == hash03 && threadHash04 == hash04){
+  if(*context.threadHash[0] == hash01 && *context.threadHash[1] == hash02 && *context.threadHash[2] == hash03 && *context.threadHash[3] == hash04){
     memcpy(g_deviceCracked, threadTextWord, threadWordLength);
   }
   
