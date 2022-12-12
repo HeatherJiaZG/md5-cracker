@@ -1,6 +1,9 @@
 #include <cuda.h>
 #include <stdint.h>
 #include <string.h>
+#include <string>
+#include <bits/stdc++.h>
+#include <iostream>
 #include "md5.cu"
 
 using namespace std;
@@ -90,6 +93,6 @@ int main() {
             break;
         }
     }
-    cout << "password is: " << result << endl;
+    printf("password is %s\n", result);
 
 }
