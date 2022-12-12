@@ -19,7 +19,7 @@ std::string getCurrentPwd(int i, char chars[], int len, int n)
     return result;
 }
 
-char* hash(const char* h_str) {
+char* runHash(const char* h_str) {
     char* d_str;
     unsigned char* h_res = (unsigned char*)malloc(sizeof(unsigned char)*(32 + 1));
     unsigned char* d_res;
@@ -79,7 +79,7 @@ int main() {
     // int n = stoi(argv[1]); // password length
     int n=3;
     // std::string target = argv[2]; // target hash
-    std::string target = "bae60998ffe4923b131e3d6e4c19993e";
+    char target[] = "bae60998ffe4923b131e3d6e4c19993e";
     std::string result = "";
 
     cout << "target = " << target << endl;
@@ -88,7 +88,7 @@ int main() {
     int len = sizeof(chars) / sizeof(chars[0]);
     for (int i = 0; i < (int)pow(len, n); i++) {
         std::string current_pwd = getCurrentPwd(i, chars, len, n);
-        if(strcmp(target, hash(current_pwd)) == 0) {
+        if(strcmp(target, runHash(current_pwd)) == 0) {
             result = current_pwd;
             break;
         }
