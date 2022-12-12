@@ -83,8 +83,12 @@ void getHashBins(char* target, uint32_t* hashes) {
     char tmp[16];
     
     strncpy(tmp, target + i * 8, 8);
-    sscanf(tmp, "%x", &hashes[i]);   
-    hashes[i] = (hashes[i] & 0xFF000000) >> 24 | (hashes[i] & 0x00FF0000) >> 8 | (hashes[i] & 0x0000FF00) << 8 | (hashes[i] & 0x000000FF) << 24;
+    sscanf(tmp, "%x", &hashes[i]);  
+    uint32_t hash1 = (hashes[i] & 0xFF000000) >> 24;
+    uint32_t hash2 = (hashes[i] & 0x00FF0000) >> 8;
+    uint32_t hash3 = (hashes[i] & 0x0000FF00) << 8;
+    uint32_t hash4 = (hashes[i] & 0x000000FF) << 24;
+    hashes[i] = hash1 | hash2 | hash3 | hash4;
   }
 }
 
