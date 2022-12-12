@@ -218,7 +218,15 @@ __device__ void md5_finalize(struct md5_context* ctx, struct md5_digest* digest)
     digest->bytes[15] = (uint8_t)(ctx->d >> 24);
 }
 
-
+////////added
+#define  uint8_t unsigned char
+#define  int32_t int
+#define uint32_t unsigned
+#define  int64_t long long
+#define uint64_t unsigned long long
+#define FIXED      2  //log64(THREADNUM*BLOCKNUM)
+class uint128_t;
+static __shared__ char symbols[64];
 
 //generate the string depending on ID and round
 __device__ void genString(char* target, uint128_t it, const int len, const char* symbols){
@@ -229,9 +237,9 @@ __device__ void genString(char* target, uint128_t it, const int len, const char*
 
 //Generate the string postfix
 //Returns the remaining number of iterations
-__device__ void genPostfix(char* target, int id, const int len, const int devIndex, const char* symbols){
+__device__ void genPostfix(char* target, int id, const int len, const char* symbols){
 	//We have exactly 3 fixed symbols, determined by the id
-	id += devIndex*blockDim.x*gridDim.x;
+	id += blockDim.x*gridDim.x;
 	#pragma unroll 2
 	for(int i = len-FIXED; i < len; id>>=6, i++)
 		target[i] = symbols[id & 63];
@@ -239,7 +247,7 @@ __device__ void genPostfix(char* target, int id, const int len, const int devInd
 
 
 
-__global__ void md5(const char* target_hash, const uint32_t input_len, unsigned char* result, char* d_res_converted) {
+__global__ void md5(const char* target_hash, const uint32_t len, unsigned char* result, char* d_res_converted) {
 
     extern __shared__ char share[];
 
@@ -247,8 +255,8 @@ __global__ void md5(const char* target_hash, const uint32_t input_len, unsigned 
 	const int id = idx + blockIdx.x*blockDim.x;
 	//myString and myMD5 are in shared memory for performance
 	char* myString =    share + idx * len * sizeof(char);
-	MD5* myMD5 = (MD5*)(share + len * blockDim.x * sizeof(char)
-	                    +sizeof(MD5) * idx);
+	// MD5* myMD5 = (MD5*)(share + len * blockDim.x * sizeof(char)
+	//                     +sizeof(MD5) * idx);
 	if(idx < 64){
 		const char sym[] = {
 			'a','b','c','d','e','f','g','h','i','j','k','l','m',
@@ -263,7 +271,7 @@ __global__ void md5(const char* target_hash, const uint32_t input_len, unsigned 
 	//Will hold the maximum number of iterations needed
 	uint128_t max(1);
 	//returns number of fixed symbols, currently 3
-	genPostfix(myString, id, len, devIndex, symbols);
+	genPostfix(myString, id, len, symbols);
 
 	//number of iterations 64^(len-fix)
 	max <<= 6*(len-FIXED);
@@ -276,7 +284,7 @@ __global__ void md5(const char* target_hash, const uint32_t input_len, unsigned 
         struct md5_digest digest;
 
         md5_init(&context);
-        md5_update(&context, myString, input_len);
+        md5_update(&context, myString, len);
         md5_finalize(&context, &digest);
 
         for (int i = 0; i < sizeof(digest); i++){
