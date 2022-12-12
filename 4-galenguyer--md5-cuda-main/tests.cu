@@ -9,17 +9,6 @@
 using namespace std;
  
 
-char *getCurrentPwd(int i, char chars[], int len, int n)
-{
-    std::string result = "";
-    for (int j = 0; j < n; j++) {
-        result += chars[i % len];
-        i /= len;
-    }
-
-    return result.data();
-}
-
 char* runHash(const char* h_str) {
     char* d_str;
     unsigned char* h_res = (unsigned char*)malloc(sizeof(unsigned char)*(32 + 1));
@@ -81,7 +70,7 @@ int main() {
     int n=3;
     // std::string target = argv[2]; // target hash
     // char *target = "bae60998ffe4923b131e3d6e4c19993e";
-    char* result = "";
+    // char* result = "";
 
     // cout << "target = " << target << endl;
 
@@ -95,10 +84,11 @@ int main() {
     //     }
     // }
 
-    char words[] = { 'abc', 'bad', 'dad', '3', '4', '5', '6', '7' };
+    char *words[4] = { "abc", "bad", "dad", "3"};
     for (int i = 0; i < 7; i++) {
         if(strcmp("bae60998ffe4923b131e3d6e4c19993e", runHash(words[i])) == 0) {
-            result = words[i];
+            // result = words[i];
+            printf("password is %s\n", words[i]);
             break;
         }
     }
