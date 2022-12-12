@@ -76,13 +76,6 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, int* hashBins, bool *result, 
   md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words, hashBins[0], hashBins[1], hashBins[2], hashBins[3]);
   /* Global increment */
   *result = next(&g_wordLength, g_word, TOTAL_THREADS * HASHES_PER_KERNEL * TOTAL_BLOCKS);
-  
-  /* Display progress */
-  char word[CONST_WORD_LIMIT];
-  
-  for(int i = 0; i < g_wordLength; i++){
-    word[i] = g_charset[g_word[i]];
-  }
     
   /* Synchronize now */
   cudaDeviceSynchronize();
