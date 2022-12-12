@@ -67,10 +67,6 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
     memcpy(g_deviceCracked, threadTextWord, threadWordLength);
   }
   
-  if(!next(&threadWordLength, threadCharsetWord, 1)){
-    break;
-  }
-  
 }
 
 
