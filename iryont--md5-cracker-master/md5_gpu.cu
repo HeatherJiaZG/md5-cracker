@@ -41,7 +41,7 @@ char g_cracked[CONST_WORD_LIMIT];
 __device__ char g_deviceCharset[CONST_CHARSET_LIMIT];
 __device__ char g_deviceCracked[CONST_WORD_LIMIT];
 
-__global__ void md5Crack(uint8_t wordLength, char* charsetWord, char* target, uint32_t hash01, uint32_t hash02, uint32_t hash03, uint32_t hash04){
+__global__ void md5Crack(uint8_t wordLength, char* charsetWord, char* target){
   uint32_t idx = (blockIdx.x * blockDim.x + threadIdx.x) * HASHES_PER_KERNEL;
   
   /* Hash stored as u32 integers */
