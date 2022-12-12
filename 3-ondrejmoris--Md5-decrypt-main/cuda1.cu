@@ -346,10 +346,10 @@ __global__ void thread_hierarchy(int len, uint8_t* hash, bool* canRunCuda)
         int charsSize = 6;
         char chars[6] = {'0','a','b','c','d','e'};
         
-        unsigned int i = (blockIdx.x * 60000) + (1024*(blockIdx.y) + threadIdx.y);
+        unsigned int i = (blockIdx.x * 1000) + (1024*(blockIdx.y) + threadIdx.y);
         
         char buffer[32];
-        int arraySize = itoaa(i, buffer, 26);
+        int arraySize = itoaa(i, buffer, 5);
 
         char res[32];
         int resLen = 0;
@@ -398,9 +398,9 @@ void run_cuda(uint8_t* hash, int len, unsigned int p)
 		gridSize = 1;
 	}
 
-    if(gridSize > 60000){
-        gridSizeX = ceil(gridSize / 60000) + 1;
-        gridSize = 60000;
+    if(gridSize > 1000){
+        gridSizeX = ceil(gridSize / 1000) + 1;
+        gridSize = 1000;
     }else{
         gridSizeX = 1;
     }
