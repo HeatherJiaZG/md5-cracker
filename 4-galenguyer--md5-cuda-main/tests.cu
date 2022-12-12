@@ -3,6 +3,8 @@
 #include <string.h>
 #include "md5.cu"
 
+#include <string>
+
 struct deviceInfo{
 	struct cudaDeviceProp prop; // Device Properties
 	int id; // Device ID
@@ -74,6 +76,28 @@ int run_test(const char* name, const char* result, const char* expected) {
 }
 
 
+void print_str(const char str[],std::string prefix,const int n, const int lenght) {
+        if (lenght == 1)
+            {
+                for (int j = 0; j < n; j++)
+                printf("%s\n", prefix + str[j]);
+
+            }//Base case: lenght = 1, print the string "lenght" times + the remaining letter
+
+        else
+            {
+               // One by one add all characters from "str" and recursively call for "lenght" equals to "lenght"-1
+                for (int i = 0; i < n; i++)
+
+                // Next character of input added
+                print_str(str, prefix + str[i], n, lenght - 1);
+                // "lenght" is decreased, because we have added a new character
+
+            }
+
+    }
+
+
 int main() {
 
 	// Set device id to 0 (Use fastest device)
@@ -99,5 +123,14 @@ int main() {
 
     printf("Tests Passed: %i\n", passed);
     printf("Tests Failed: %i\n", failed);
+
+
+
+    int len = 2;
+    char str[] = {'A', 'B', 'C', 'D'};
+    int n = sizeof(str);
+    print_str(str, "", n, len);
+
+
     return failed;
 }
