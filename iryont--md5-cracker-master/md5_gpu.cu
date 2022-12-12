@@ -22,8 +22,22 @@ char g_cracked[CONST_WORD_LIMIT];
 __device__ char g_deviceCharset[CONST_CHARSET_LENGTH];
 __device__ char g_deviceCracked[CONST_WORD_LIMIT];
 
+struct deviceInfo{
+	struct cudaDeviceProp prop; // Device Properties
+	int id; // Device ID
+	int max_threads; // Device max threads per block
+	int max_blocks; // Device max blocks
+	int global_memory_len;
+};
+
+
+#define REQUIRED_SHARED_MEMORY 64
+#define FUNCTION_PARAM_ALLOC 256
+struct deviceInfo device;
+
+
 __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01, uint32_t hash02, uint32_t hash03, uint32_t hash04){
-  uint32_t idx = (blockIdx.x * blockDim.x + threadIdx.x) * HASHES_PER_KERNEL;
+  uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
   
   /* Shared variables */
   __shared__ char sharedCharset[CONST_CHARSET_LENGTH];
@@ -42,21 +56,21 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   /* Increment current word by thread index */
   next(&threadWordLength, threadCharsetWord, idx);
   
-  for(uint32_t hash = 0; hash < HASHES_PER_KERNEL; hash++){
-    for(uint32_t i = 0; i < threadWordLength; i++){
-      threadTextWord[i] = sharedCharset[threadCharsetWord[i]];
-    }
-    
-    md5Hash((unsigned char*)threadTextWord, threadWordLength, &threadHash01, &threadHash02, &threadHash03, &threadHash04);   
 
-    if(threadHash01 == hash01 && threadHash02 == hash02 && threadHash03 == hash03 && threadHash04 == hash04){
-      memcpy(g_deviceCracked, threadTextWord, threadWordLength);
-    }
-    
-    if(!next(&threadWordLength, threadCharsetWord, 1)){
-      break;
-    }
+  for(uint32_t i = 0; i < threadWordLength; i++){
+    threadTextWord[i] = sharedCharset[threadCharsetWord[i]];
   }
+  
+  md5Hash((unsigned char*)threadTextWord, threadWordLength, &threadHash01, &threadHash02, &threadHash03, &threadHash04);   
+
+  if(threadHash01 == hash01 && threadHash02 == hash02 && threadHash03 == hash03 && threadHash04 == hash04){
+    memcpy(g_deviceCracked, threadTextWord, threadWordLength);
+  }
+  
+  if(!next(&threadWordLength, threadCharsetWord, 1)){
+    break;
+  }
+  
 }
 
 
@@ -73,9 +87,9 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, uint32_t* hashBins, bool *res
   /* Copy current data */
   ERROR_CHECK(cudaMemcpy(words, g_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
   /* Start kernel */
-  md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words, hashBins[0], hashBins[1], hashBins[2], hashBins[3]);
+  md5Crack<<<device.max_blocks, device.max_threads>>>(g_wordLength, words, hashBins[0], hashBins[1], hashBins[2], hashBins[3]);
   /* Global increment */
-  *result = next(&g_wordLength, g_word, TOTAL_THREADS * HASHES_PER_KERNEL * TOTAL_BLOCKS);
+  *result = next(&g_wordLength, g_word, device.max_threads * device.max_blocks);
     
   /* Synchronize now */
   cudaDeviceSynchronize();
@@ -96,6 +110,30 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, uint32_t* hashBins, bool *res
 
   *time += elapsedTime;
   return found;
+} 
+
+void getOptimalThreads(struct deviceInfo * device) {
+	int max_threads;
+	int max_blocks;
+	int shared_memory;
+
+	max_threads = device->prop.maxThreadsPerBlock;
+	shared_memory = device->prop.sharedMemPerBlock - FUNCTION_PARAM_ALLOC;
+	
+	// calculate the most threads that we can support optimally
+	
+	while ((shared_memory / max_threads) < REQUIRED_SHARED_MEMORY) { max_threads--; } 
+
+	// now we spread our threads across blocks 
+	
+	max_blocks = 40;		
+
+	device->max_threads = max_threads;		// most threads we support
+	device->max_blocks = max_blocks;		// most blocks we support
+
+	// now we need to have (device.max_threads * device.max_blocks) number of words in memory for the graphics card
+	
+	device->global_memory_len = (device->max_threads * device->max_blocks) * 64;
 }
 
 
@@ -112,6 +150,10 @@ int main(int argc, char* argv[]){
   // g_charset[fsize] = 0;
 
   int totalTime = 0; 
+
+  device.id = 0;
+	cudaGetDeviceProperties(&device.prop, device.id);
+  getOptimalThreads(&device);
 
   memcpy(g_charset, CONST_CHARSET, CONST_CHARSET_LENGTH);
 
