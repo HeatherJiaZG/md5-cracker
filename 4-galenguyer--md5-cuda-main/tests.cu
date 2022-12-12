@@ -4,6 +4,7 @@
 #include "md5.cu"
 
 #include <string>
+#include <iostream>
 
 struct deviceInfo{
 	struct cudaDeviceProp prop; // Device Properties
@@ -80,7 +81,7 @@ void print_str(const char str[],std::string prefix,const int n, const int lenght
         if (lenght == 1)
             {
                 for (int j = 0; j < n; j++)
-                printf("%s\n", prefix + str[j]);
+                std::cout << prefix + str[j] << std::endl;
 
             }//Base case: lenght = 1, print the string "lenght" times + the remaining letter
 
