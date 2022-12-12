@@ -82,9 +82,9 @@ void print_str(const char str[],std::string prefix,const int n, const int lenght
         if (lenght == 1)
             {
                 for (int j = 0; j < n; j++) {
-                    if (strcmp(target, md5_hash(prefix + str[j])) == 0) {
+                    if (strcmp(target, md5_hash((prefix + str[j])).c_str()) == 0) {
                         std::cout << "Cracked = " << prefix + str[j] << std::endl;
-                        break
+                        break;
                     }
                 }
                 // std::cout << prefix + str[j] << std::endl;
