@@ -16,4 +16,6 @@
 #define TOTAL_THREADS 512UL
 #define HASHES_PER_KERNEL 128UL
 
+#define ERROR_CHECK(X) { gpuAssert((X), __FILE__, __LINE__); }
+
 #endif

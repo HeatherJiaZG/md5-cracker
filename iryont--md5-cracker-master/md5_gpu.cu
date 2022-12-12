@@ -31,7 +31,7 @@
 #include <device_functions.h>
 
 #include "consts.h"
-// #include "assert.cu"
+#include "utility.cu"
 #include "md5.cu"
 
 /* Global variables */
