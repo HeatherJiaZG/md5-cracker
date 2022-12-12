@@ -41,20 +41,9 @@ char g_cracked[CONST_WORD_LIMIT];
 __device__ char g_deviceCharset[CONST_CHARSET_LIMIT];
 __device__ char g_deviceCracked[CONST_WORD_LIMIT];
 
-__global__ void md5Crack(uint8_t wordLength, char* charsetWord, char* target){
+__global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01, uint32_t hash02, uint32_t hash03, uint32_t hash04){
   uint32_t idx = (blockIdx.x * blockDim.x + threadIdx.x) * HASHES_PER_KERNEL;
   
-  /* Hash stored as u32 integers */
-  uint32_t md5HashBins[4];
-  /* Parse argument */
-  for(uint8_t i = 0; i < 4; i++){
-    char tmp[16];
-
-    strncpy(tmp, target + i * 8, 8);
-    sscanf(tmp, "%x", &md5HashBins[i]);   
-    md5HashBins[i] = (md5HashBins[i] & 0xFF000000) >> 24 | (md5HashBins[i] & 0x00FF0000) >> 8 | (md5HashBins[i] & 0x0000FF00) << 8 | (md5HashBins[i] & 0x000000FF) << 24;
-  }
-
   /* Shared variables */
   __shared__ char sharedCharset[CONST_CHARSET_LIMIT];
   
@@ -79,7 +68,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, char* target){
     
     md5Hash((unsigned char*)threadTextWord, threadWordLength, &threadHash01, &threadHash02, &threadHash03, &threadHash04);   
 
-    if(threadHash01 == md5HashBins[0] && threadHash02 == md5HashBins[1] && threadHash03 == md5HashBins[2] && threadHash04 == md5HashBins[3]){
+    if(threadHash01 == hash01 && threadHash02 == hash02 && threadHash03 == hash03 && threadHash04 == hash04){
       memcpy(g_deviceCracked, threadTextWord, threadWordLength);
     }
     
@@ -96,17 +85,17 @@ int main(int argc, char* argv[]){
     return -1;
   }
   
-  // /* Hash stored as u32 integers */
-  // uint32_t md5Hash[4];
+  /* Hash stored as u32 integers */
+  uint32_t md5Hash[4];
   
-  // /* Parse argument */
-  // for(uint8_t i = 0; i < 4; i++){
-  //   char tmp[16];
+  /* Parse argument */
+  for(uint8_t i = 0; i < 4; i++){
+    char tmp[16];
     
-  //   strncpy(tmp, argv[1] + i * 8, 8);
-  //   sscanf(tmp, "%x", &md5Hash[i]);   
-  //   md5Hash[i] = (md5Hash[i] & 0xFF000000) >> 24 | (md5Hash[i] & 0x00FF0000) >> 8 | (md5Hash[i] & 0x0000FF00) << 8 | (md5Hash[i] & 0x000000FF) << 24;
-  // }
+    strncpy(tmp, argv[1] + i * 8, 8);
+    sscanf(tmp, "%x", &md5Hash[i]);   
+    md5Hash[i] = (md5Hash[i] & 0xFF000000) >> 24 | (md5Hash[i] & 0x00FF0000) >> 8 | (md5Hash[i] & 0x0000FF00) << 8 | (md5Hash[i] & 0x000000FF) << 24;
+  }
   
   /* Fill memory */
   memset(g_word, 0, CONST_WORD_LIMIT);
@@ -143,7 +132,7 @@ int main(int argc, char* argv[]){
     /* Copy current data */
     ERROR_CHECK(cudaMemcpy(words[0], g_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
     /* Start kernel */
-    md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words[0], argv[1]);
+    md5Crack<<<TOTAL_BLOCKS, TOTAL_THREADS>>>(g_wordLength, words[0], md5Hash[0], md5Hash[1], md5Hash[2], md5Hash[3]);
     /* Global increment */
     result = next(&g_wordLength, g_word, TOTAL_THREADS * HASHES_PER_KERNEL * TOTAL_BLOCKS);
     
