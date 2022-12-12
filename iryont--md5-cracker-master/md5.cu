@@ -166,8 +166,8 @@ __device__ inline void md5Hash(struct md5_context* ctx, unsigned char* data, uin
   c += ctx->c;
   d += ctx->d;
 
-  *ctx->threadHash[0] = a;
-  *ctx->threadHash[1] = b;
-  *ctx->threadHash[2] = c;
-  *ctx->threadHash[3] = d;
+  ctx->threadHash[0] = a;
+  ctx->threadHash[1] = b;
+  ctx->threadHash[2] = c;
+  ctx->threadHash[3] = d;
 }
