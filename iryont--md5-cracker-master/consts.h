@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+typedef unsigned int UINT32;
 #define CONST_WORD_LIMIT 7
 
 #define CONST_CHARSET "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

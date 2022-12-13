@@ -42,35 +42,27 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, UINT32 hash01, U
   
   /* Shared variables */
   __shared__ char sharedCharset[CONST_CHARSET_LENGTH];
-  
-  /* Thread variables */
-  char threadCharsetWord[CONST_WORD_LIMIT];
-  char threadTextWord[CONST_WORD_LIMIT];
-  uint8_t threadWordLength = wordLength;
-  UINT32 threadHash01, threadHash02, threadHash03, threadHash04;
-  
-  /* Copy everything to local memory */
-  // memcpy(threadCharsetWord, charsetWord, CONST_WORD_LIMIT);
-
-  for(int i = 0; i < CONST_WORD_LIMIT; i++){
-    threadCharsetWord[i] = charsetWord[i];
-  }
-
   for(int i = 0; i < CONST_CHARSET_LENGTH; i++){
     sharedCharset[i] = g_deviceCharset[i];
   }
   
+  /* Thread variables */
+  uint8_t threadWordLength = wordLength;
+  char threadCharsetWord[CONST_WORD_LIMIT];
+  for(int i = 0; i < CONST_WORD_LIMIT; i++){
+    threadCharsetWord[i] = charsetWord[i];
+  }
+  
   /* Increment current word by thread index */
   next(&threadWordLength, threadCharsetWord, idx);
-  
 
+  char threadTextWord[CONST_WORD_LIMIT];
   for(int i = 0; i < threadWordLength; i++){
     threadTextWord[i] = sharedCharset[threadCharsetWord[i]];
   }
   
   struct md5_context context;
   md5_init(&context, (unsigned char*)threadTextWord, threadWordLength);
-
   md5Hash(&context);   
 
   if(context.threadHash[0] == hash01 && context.threadHash[1] == hash02 && context.threadHash[2] == hash03 && context.threadHash[3] == hash04){

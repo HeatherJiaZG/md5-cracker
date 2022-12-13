@@ -1,6 +1,8 @@
 #ifndef LIB_MD5_H
 #define LIB_MD5_H
 
+#include "consts.h"
+
 struct md5_context {
     // state
     unsigned int a;
@@ -17,8 +19,6 @@ struct md5_context {
     // current block
     unsigned int block[16];
 };
-
-typedef unsigned int UINT32;
 
 #define ROTATE_LEFT(x, s) (x<<s | x>>(32-s))
 
