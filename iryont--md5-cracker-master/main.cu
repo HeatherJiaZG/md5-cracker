@@ -16,7 +16,7 @@
 #include "lib_md5.h"
 
 
-__global__ void md5_cuda(int pwd_len, char* words, UINT32* hashBins){
+__global__ void md5_cuda(uint8_t pwd_len, char* words, UINT32* hashBins){
   int idx = blockIdx.x*blockDim.x + threadIdx.x;
   bool hash_match = true;
   
@@ -27,7 +27,7 @@ __global__ void md5_cuda(int pwd_len, char* words, UINT32* hashBins){
   }
   
   /* Thread variables */
-  int threadWordLength = pwd_len;
+  uint8_t threadWordLength = pwd_len;
   char threadCharsetWord[CONST_WORD_LIMIT];
   for(int i = 0; i < CONST_WORD_LIMIT; i++){
     threadCharsetWord[i] = words[i];
@@ -60,7 +60,7 @@ __global__ void md5_cuda(int pwd_len, char* words, UINT32* hashBins){
 
 struct device_info device;
 
-bool runMD5CUDA(char* words, int pwd_len, UINT32* hashBins, bool *result, float *time) {
+bool runMD5CUDA(char* words, uint8_t pwd_len, UINT32* hashBins, bool *result, float *time) {
   // true: found, false: not found
   bool found = false;
   UINT32 *hashBins_d;
@@ -74,7 +74,7 @@ bool runMD5CUDA(char* words, int pwd_len, UINT32* hashBins, bool *result, float 
   cudaEventRecord(start, 0);
 
   /* Copy current data */
-  ERROR_CHECK(cudaMemcpy(words, cur_word, sizeof(int) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
+  ERROR_CHECK(cudaMemcpy(words, cur_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
   /* Start kernel */
   md5_cuda<<<device.max_blocks, device.max_threads>>>(pwd_len, words, hashBins_d);
   /* Global increment */
@@ -83,7 +83,7 @@ bool runMD5CUDA(char* words, int pwd_len, UINT32* hashBins, bool *result, float 
   /* Synchronize now */
   cudaDeviceSynchronize();
   /* Copy result */
-  ERROR_CHECK(cudaMemcpyFromSymbol(pwd, pwd_d, sizeof(int) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
+  ERROR_CHECK(cudaMemcpyFromSymbol(pwd, pwd_d, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
  
   /* Check result */
   if(*pwd != 0){     
@@ -149,17 +149,17 @@ int main(int argc, char* argv[]){
   }
   
   /* Current word length = minimum word length */
-  int pwd_len = 1;
+  uint8_t pwd_len = 1;
   
   /* Current word is different on each device */
   char* words;
     
   /* Copy to each device */
-  ERROR_CHECK(cudaMemcpyToSymbol(potential_chars_d, potential_chars, sizeof(int) * CONST_CHARSET_LENGTH, 0, cudaMemcpyHostToDevice));
-  ERROR_CHECK(cudaMemcpyToSymbol(pwd_d, pwd, sizeof(int) * CONST_WORD_LIMIT, 0, cudaMemcpyHostToDevice));
+  ERROR_CHECK(cudaMemcpyToSymbol(potential_chars_d, potential_chars, sizeof(uint8_t) * CONST_CHARSET_LENGTH, 0, cudaMemcpyHostToDevice));
+  ERROR_CHECK(cudaMemcpyToSymbol(pwd_d, pwd, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyHostToDevice));
   
   /* Allocate on each device */
-  ERROR_CHECK(cudaMalloc((void**)&words, sizeof(int) * CONST_WORD_LIMIT));
+  ERROR_CHECK(cudaMalloc((void**)&words, sizeof(uint8_t) * CONST_WORD_LIMIT));
 
   bool result = true;
   bool found = false;
