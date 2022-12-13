@@ -13,8 +13,8 @@
 
 #include "consts.h"
 #include "utility.cu"
-#include "lib_md5.cu"
-#include "lib_md5.h"
+#include "md5.cu"
+#include "md5.h"
 
 char g_word[CONST_WORD_LIMIT];
 char g_charset[] = "abcdefg";
@@ -31,16 +31,14 @@ struct deviceInfo{
 	int global_memory_len;
 };
 
-#define HASHES_PER_KERNEL 128UL
+
 #define REQUIRED_SHARED_MEMORY 64
 #define FUNCTION_PARAM_ALLOC 256
 struct deviceInfo device;
 
-#define CONST_CHARSET_LIMIT 100
-
 
 __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01, uint32_t hash02, uint32_t hash03, uint32_t hash04){
-  uint32_t idx = (blockIdx.x * blockDim.x + threadIdx.x) * HASHES_PER_KERNEL;
+  uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
   
   /* Shared variables */
   __shared__ char sharedCharset[CONST_CHARSET_LENGTH];
@@ -52,39 +50,36 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   uint32_t threadHash01, threadHash02, threadHash03, threadHash04;
   
   /* Copy everything to local memory */
-  memcpy(threadCharsetWord, charsetWord, CONST_WORD_LIMIT);
-  // for(uint32_t i = 0; i < CONST_WORD_LIMIT; i++){
-  //   threadCharsetWord[i] = charsetWord[i];
-  // }
+  // memcpy(threadCharsetWord, charsetWord, CONST_WORD_LIMIT);
 
-  memcpy(sharedCharset, g_deviceCharset, sizeof(uint8_t) * CONST_CHARSET_LIMIT);
-  // for(uint32_t i = 0; i < CONST_CHARSET_LENGTH; i++){
-  //   sharedCharset[i] = g_deviceCharset[i];
-  // }
+  for(uint32_t i = 0; i < CONST_WORD_LIMIT; i++){
+    threadCharsetWord[i] = charsetWord[i];
+  }
+
+  for(uint32_t i = 0; i < CONST_CHARSET_LENGTH; i++){
+    sharedCharset[i] = g_deviceCharset[i];
+  }
   
   /* Increment current word by thread index */
   next(&threadWordLength, threadCharsetWord, idx);
   
-  for(uint32_t hash = 0; hash < HASHES_PER_KERNEL; hash++){
-    for(uint32_t i = 0; i < threadWordLength; i++){
-      threadTextWord[i] = sharedCharset[threadCharsetWord[i]];
-    }
-    
-    struct md5_context context;
-    md5_init(&context);
 
-    md5Hash(&context, (unsigned char*)threadTextWord, threadWordLength);   
-
-    if(context.threadHash[0] == hash01 && context.threadHash[1] == hash02 && context.threadHash[2] == hash03 && context.threadHash[3] == hash04){
-      memcpy(g_deviceCracked, threadTextWord, threadWordLength);
-      // for(uint32_t i = 0; i < threadWordLength; i++){
-      //   g_deviceCracked[i] = threadTextWord[i];
-      // }
-    }
-    if(!next(&threadWordLength, threadCharsetWord, 1)){
-      break;
-    }
+  for(uint32_t i = 0; i < threadWordLength; i++){
+    threadTextWord[i] = sharedCharset[threadCharsetWord[i]];
   }
+  
+  struct md5_context context;
+  md5_init(&context);
+
+  md5Hash(&context, (unsigned char*)threadTextWord, threadWordLength);   
+
+  if(context.threadHash[0] == hash01 && context.threadHash[1] == hash02 && context.threadHash[2] == hash03 && context.threadHash[3] == hash04){
+    for(uint32_t i = 0; i < threadWordLength; i++){
+      g_deviceCracked[i] = threadTextWord[i];
+    }
+    return;
+  }
+  
 }
 
 
@@ -103,7 +98,7 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, uint32_t* hashBins, bool *res
   /* Start kernel */
   md5Crack<<<device.max_blocks, device.max_threads>>>(g_wordLength, words, hashBins[0], hashBins[1], hashBins[2], hashBins[3]);
   /* Global increment */
-  *result = next(&g_wordLength, g_word, device.max_threads * device.max_blocks * HASHES_PER_KERNEL);
+  *result = next(&g_wordLength, g_word, device.max_threads * device.max_blocks);
     
   /* Synchronize now */
   cudaDeviceSynchronize();

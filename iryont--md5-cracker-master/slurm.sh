@@ -11,4 +11,4 @@ module load nvidia/cuda
 
 make
 
-./md5_gpu bae60998ffe4923b131e3d6e4c19993e
+./md5_gpu 5480205f98c5904343a0337cd17794b1
