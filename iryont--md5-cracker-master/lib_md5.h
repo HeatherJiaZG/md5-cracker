@@ -1,5 +1,5 @@
-#ifndef MD5_H
-#define MD5_H
+#ifndef LIB_MD5_H
+#define LIB_MD5_H
 
 struct md5_context {
     // state

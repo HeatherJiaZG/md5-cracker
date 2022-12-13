@@ -4,4 +4,4 @@ CXX_LIBS =
 BIN = md5_gpu
 
 main:
-	$(CXX) $(CXX_FLAGS) md5_gpu.cu -o $(BIN) $(CXX_LIBS)
+	$(CXX) $(CXX_FLAGS) main.cu -o $(BIN) $(CXX_LIBS)

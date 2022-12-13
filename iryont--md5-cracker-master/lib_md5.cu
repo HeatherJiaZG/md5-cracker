@@ -10,7 +10,7 @@
 #include <curand_kernel.h>
 #include <device_functions.h>
 
-#include "md5.h"
+#include "lib_md5.h"
 
 __device__ void md5_init(struct md5_context* ctx) {
     ctx->a = 0x67452301;
