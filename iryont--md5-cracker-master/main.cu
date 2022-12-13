@@ -13,8 +13,8 @@
 
 #include "consts.h"
 #include "utility.cu"
-#include "md5.cu"
-#include "md5.h"
+#include "lib_md5.cu"
+#include "lib_md5.h"
 
 char g_word[CONST_WORD_LIMIT];
 char g_charset[] = "abcdefg";
