@@ -17,7 +17,7 @@
 #include "md5.h"
 
 char g_word[CONST_WORD_LIMIT];
-char g_charset[CONST_CHARSET_LENGTH];
+char g_charset[] = "abcdefg";
 char g_cracked[CONST_WORD_LIMIT];
 
 __device__ char g_deviceCharset[CONST_CHARSET_LENGTH];
@@ -94,7 +94,7 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, uint32_t* hashBins, bool *res
   /* Synchronize now */
   cudaDeviceSynchronize();
   /* Copy result */
-  ERROR_CHECK(cudaMemcpy(g_cracked, g_deviceCracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
+  ERROR_CHECK(cudaMemcpyFromSymbol(g_cracked, g_deviceCracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
  
   /* Check result */
   if(*g_cracked != 0){     
@@ -154,8 +154,6 @@ int main(int argc, char* argv[]){
   device.id = 0;
 	cudaGetDeviceProperties(&device.prop, device.id);
   getOptimalThreads(&device);
-
-  memcpy(g_charset, CONST_CHARSET, CONST_CHARSET_LENGTH);
 
   /* Hash stored as u32 integers */
   uint32_t hashBins[4];
