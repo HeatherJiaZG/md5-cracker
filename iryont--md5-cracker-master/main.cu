@@ -21,37 +21,37 @@ __global__ void md5_cuda(uint8_t pwd_len, char* words, UINT32* hashBins){
   bool hash_match = true;
   
   /* Shared variables */
-  __shared__ char sharedCharset[CONST_CHARSET_LENGTH];
+  __shared__ char shared_mem[CONST_CHARSET_LENGTH];
   for(int i = 0; i < CONST_CHARSET_LENGTH; i++){
-    sharedCharset[i] = potential_chars_d[i];
+    shared_mem[i] = potential_chars_d[i];
   }
   
   /* Thread variables */
-  uint8_t threadWordLength = pwd_len;
-  char threadCharsetWord[CONST_WORD_LIMIT];
+  uint8_t word_len = pwd_len;
+  char cur_word[CONST_WORD_LIMIT];
   for(int i = 0; i < CONST_WORD_LIMIT; i++){
-    threadCharsetWord[i] = words[i];
+    cur_word[i] = words[i];
   }
   
   /* Increment current word by thread index */
-  advance_step(&threadWordLength, threadCharsetWord, idx);
+  advance_step(&word_len, cur_word, idx);
 
-  char threadTextWord[CONST_WORD_LIMIT];
-  for(int i = 0; i < threadWordLength; i++){
-    threadTextWord[i] = sharedCharset[threadCharsetWord[i]];
+  char thread_word[CONST_WORD_LIMIT];
+  for(int i = 0; i < word_len; i++){
+    thread_word[i] = shared_mem[cur_word[i]];
   }
   
   struct md5_states context;
-  md5_init(&context, (unsigned char*)threadTextWord, threadWordLength);
+  md5_init(&context, (unsigned char*)thread_word, word_len);
   md5_run(&context);   
 
-  for(int i = 0; i < threadWordLength; i++){
+  for(int i = 0; i < word_len; i++){
     bool current_match = context.hashes[i] == hashBins[i];
     hash_match = hash_match && current_match;
   }
   if(hash_match){
-    for(int i = 0; i < threadWordLength; i++){
-      pwd_d[i] = threadTextWord[i];
+    for(int i = 0; i < word_len; i++){
+      pwd_d[i] = thread_word[i];
     }
     return;
   }
@@ -86,9 +86,9 @@ bool runMD5CUDA(char* words, uint8_t pwd_len, UINT32* hashBins, bool *result, fl
   ERROR_CHECK(cudaMemcpyFromSymbol(pwd, pwd_d, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
  
   /* Check result */
-  if(*pwd != 0){     
-    std::cout << "Notice: cracked " << pwd << std::endl; 
-    found = true;
+  if(*pwd != 0){    
+    found = true; 
+    std::cout << "The cracked word is: " << pwd << std::endl; 
   }
 
   // Stop Execution Time
@@ -101,21 +101,22 @@ bool runMD5CUDA(char* words, uint8_t pwd_len, UINT32* hashBins, bool *result, fl
   return found;
 } 
 
-void getOptimalThreads(struct device_info * device) {
+void get_optimal_threads(struct device_info * device) {
+  int max_blocks = 40;
 	int max_threads = device->properties.maxThreadsPerBlock;
-	int max_blocks = 40;
 	int shared_memory = device->properties.sharedMemPerBlock - FUNCTION_PARAM_ALLOC;
 	
 	// calculate the most threads that we can support optimally
 	
-	while ((shared_memory / max_threads) < REQUIRED_SHARED_MEMORY) { max_threads--; } 	
+	while ((shared_memory / max_threads) < REQUIRED_SHARED_MEMORY) {
+    max_threads--; 
+  } 	
 
-	device->max_threads = max_threads;		// most threads we support
-	device->max_blocks = max_blocks;		// most blocks we support
+	device->max_threads = max_threads;
+	device->max_blocks = max_blocks;
+  device->global_mem = (device->max_threads * device->max_blocks) * 64;
 
-	// now we need to have (device.max_threads * device.max_blocks) number of words in memory for the graphics card
-	
-	device->global_mem = (device->max_threads * device->max_blocks) * 64;
+	// now we need to have (device.max_threads * device.max_blocks) number of words in memory for the GPU
 }
 
 
@@ -131,15 +132,18 @@ int main(int argc, char* argv[]){
   // fclose(f);
   // potential_chars[fsize] = 0;
 
-  float totalTime = 0; 
+  float total_time = 0; 
+  uint8_t pwd_len = 1;
+  bool result = true;
+  bool found = false;
 
   device.id = 0;
 	cudaGetDeviceProperties(&device.properties, device.id);
-  getOptimalThreads(&device);
+  get_optimal_threads(&device);
 
   /* Hash stored as u32 integers */
-  UINT32 hashBins[4];
-  get_hash_bins(argv[1], hashBins);
+  UINT32 hash_bins[4];
+  get_hash_bins(argv[1], hash_bins);
   
   
   /* Fill memory */
@@ -149,32 +153,24 @@ int main(int argc, char* argv[]){
   }
   
   /* Current word length = minimum word length */
-  uint8_t pwd_len = 1;
   
   /* Current word is different on each device */
   char* words;
+  ERROR_CHECK(cudaMalloc((void**)&words, sizeof(uint8_t) * CONST_WORD_LIMIT));
     
   /* Copy to each device */
   ERROR_CHECK(cudaMemcpyToSymbol(potential_chars_d, potential_chars, sizeof(uint8_t) * CONST_CHARSET_LENGTH, 0, cudaMemcpyHostToDevice));
   ERROR_CHECK(cudaMemcpyToSymbol(pwd_d, pwd, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyHostToDevice));
-  
-  /* Allocate on each device */
-  ERROR_CHECK(cudaMalloc((void**)&words, sizeof(uint8_t) * CONST_WORD_LIMIT));
-
-  bool result = true;
-  bool found = false;
 
   while(result && !found){
-    found = runMD5CUDA(words, pwd_len, hashBins, &result, &totalTime);
+    found = runMD5CUDA(words, pwd_len, hash_bins, &result, &total_time);
   }
 
   if(!result && !found){
-    std::cout << "Notice: found nothing (host)" << std::endl;
+    std::cout << "No matched password.\n";
   }
-    
-  /* Free on each device */
-  cudaFree(words);
-  
-  std::cout << "Notice: computation time " << totalTime << " ms" << std::endl;
+
+  cudaFree(words);  
+  std::cout << "Time: " << total_time << " ms\n";
   
 }
