@@ -36,6 +36,8 @@ struct deviceInfo{
 #define FUNCTION_PARAM_ALLOC 256
 struct deviceInfo device;
 
+#define CONST_CHARSET_LIMIT 100
+
 
 __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01, uint32_t hash02, uint32_t hash03, uint32_t hash04){
   uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
