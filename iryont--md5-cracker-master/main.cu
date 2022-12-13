@@ -23,7 +23,7 @@
 // __device__ char potential_chars_d[CONST_CHARSET_LENGTH];
 
 
-__global__ void md5_cuda(uint8_t wordLength, char* charsetWord, UINT32 hash01, UINT32 hash02, UINT32 hash03, UINT32 hash04){
+__global__ void md5_cuda(uint8_t wordLength, char* charsetWord, UINT32* hashBins){
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   
   /* Shared variables */
@@ -51,7 +51,7 @@ __global__ void md5_cuda(uint8_t wordLength, char* charsetWord, UINT32 hash01, U
   md5_init(&context, (unsigned char*)threadTextWord, threadWordLength);
   md5_run(&context);   
 
-  if(context.hashes[0] == hash01 && context.hashes[1] == hash02 && context.hashes[2] == hash03 && context.hashes[3] == hash04){
+  if(context.hashes[0] == hashBins[0] && context.hashes[1] == hashBins[1] && context.hashes[2] == hashBins[2] && context.hashes[3] == hashBins[3]){
     for(int i = 0; i < threadWordLength; i++){
       pwd_d[i] = threadTextWord[i];
     }
@@ -65,6 +65,9 @@ struct device_info device;
 bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *result, float *time) {
   // true: found, false: not found
   bool found = false;
+  UINT32 *hashBins_d;
+  cudaMalloc((void **)&hashBins_d, sizeof(UINT32) * 4);
+  cudaMemcpy(hashBins_d, hashBins, sizeof(UINT32) * 4, cudaMemcpyHostToDevice);
 
   // Start Execution Time
   cudaEvent_t start, stop;
@@ -75,7 +78,7 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *resul
   /* Copy current data */
   ERROR_CHECK(cudaMemcpy(words, cur_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
   /* Start kernel */
-  md5_cuda<<<device.max_blocks, device.max_threads>>>(g_wordLength, words, hashBins[0], hashBins[1], hashBins[2], hashBins[3]);
+  md5_cuda<<<device.max_blocks, device.max_threads>>>(g_wordLength, words, hashBins_d);
   /* Global increment */
   *result = advance_step(&g_wordLength, cur_word, device.max_threads * device.max_blocks);
     
