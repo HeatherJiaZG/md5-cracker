@@ -110,6 +110,7 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *resul
   cudaEventElapsedTime( &elapsedTime, start, stop);
   std::cout << "[DEBUG] elapsedTime = " << elapsedTime << std::endl; 
   *time += elapsedTime;
+  std::cout << "[DEBUG] time = " << *time << std::endl; 
 
   return found;
 } 
@@ -179,6 +180,7 @@ int main(int argc, char* argv[]){
 
   while(result && !found){
     found = runMD5CUDA(words, g_wordLength, hashBins, &result, &totalTime);
+    std::cout << "[DEBUG] totalTime = " << totalTime << std::endl; 
   }
 
   if(!result && !found){
