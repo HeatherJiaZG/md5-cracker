@@ -59,8 +59,6 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   for(uint32_t i = 0; i < CONST_CHARSET_LENGTH; i++){
     sharedCharset[i] = g_deviceCharset[i];
   }
-  // memcpy(&threadWordLength, &wordLength, sizeof(uint8_t));
-  // memcpy(sharedCharset, g_deviceCharset, sizeof(uint8_t) * CONST_CHARSET_LENGTH);
   
   /* Increment current word by thread index */
   next(&threadWordLength, threadCharsetWord, idx);
@@ -79,7 +77,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
     for(uint32_t i = 0; i < threadWordLength; i++){
       g_deviceCracked[i] = threadTextWord[i];
     }
-    // memcpy(g_deviceCracked, threadTextWord, threadWordLength);
+    return;
   }
   
 }
@@ -124,20 +122,13 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, uint32_t* hashBins, bool *res
 } 
 
 void getOptimalThreads(struct deviceInfo * device) {
-	int max_threads;
-	int max_blocks;
-	int shared_memory;
-
-	max_threads = device->prop.maxThreadsPerBlock;
-	shared_memory = device->prop.sharedMemPerBlock - FUNCTION_PARAM_ALLOC;
+	int max_threads = device->prop.maxThreadsPerBlock;
+	int max_blocks = 40;
+	int shared_memory = device->prop.sharedMemPerBlock - FUNCTION_PARAM_ALLOC;
 	
 	// calculate the most threads that we can support optimally
 	
-	while ((shared_memory / max_threads) < REQUIRED_SHARED_MEMORY) { max_threads--; } 
-
-	// now we spread our threads across blocks 
-	
-	max_blocks = 40;		
+	while ((shared_memory / max_threads) < REQUIRED_SHARED_MEMORY) { max_threads--; } 	
 
 	device->max_threads = max_threads;		// most threads we support
 	device->max_blocks = max_blocks;		// most blocks we support
