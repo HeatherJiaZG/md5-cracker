@@ -26,10 +26,10 @@ __device__ void md5_init(struct md5_context* ctx) {
 
 // __device__ void md5_update(struct md5_context* ctx, uint32_t a1, uint32_t b1, uint32_t c1, uint32_t d1) {
 
-//     ctx->threadHash[0] = a1;
-//     ctx->threadHash[1] = b1;
-//     ctx->threadHash[2] = c1;
-//     ctx->threadHash[3] = d1;
+//     ctx->k[0] = a1;
+//     ctx->j[1] = b1;
+//     ctx->n[2] = c1;
+//     ctx->m[3] = d1;
 // }
 
 __device__ inline void md5Hash(struct md5_context* ctx, unsigned char* data, uint32_t length){
