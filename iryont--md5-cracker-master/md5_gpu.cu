@@ -50,15 +50,15 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   uint32_t threadHash01, threadHash02, threadHash03, threadHash04;
   
   /* Copy everything to local memory */
-  // memcpy(threadCharsetWord, charsetWord, CONST_WORD_LIMIT);
+  memcpy(threadCharsetWord, charsetWord, CONST_WORD_LIMIT);
+  // for(uint32_t i = 0; i < CONST_WORD_LIMIT; i++){
+  //   threadCharsetWord[i] = charsetWord[i];
+  // }
 
-  for(uint32_t i = 0; i < CONST_WORD_LIMIT; i++){
-    threadCharsetWord[i] = charsetWord[i];
-  }
-
-  for(uint32_t i = 0; i < CONST_CHARSET_LENGTH; i++){
-    sharedCharset[i] = g_deviceCharset[i];
-  }
+  memcpy(sharedCharset, g_deviceCharset, sizeof(uint8_t) * CONST_CHARSET_LIMIT);
+  // for(uint32_t i = 0; i < CONST_CHARSET_LENGTH; i++){
+  //   sharedCharset[i] = g_deviceCharset[i];
+  // }
   
   /* Increment current word by thread index */
   next(&threadWordLength, threadCharsetWord, idx);
@@ -74,9 +74,10 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   md5Hash(&context, (unsigned char*)threadTextWord, threadWordLength);   
 
   if(context.threadHash[0] == hash01 && context.threadHash[1] == hash02 && context.threadHash[2] == hash03 && context.threadHash[3] == hash04){
-    for(uint32_t i = 0; i < threadWordLength; i++){
-      g_deviceCracked[i] = threadTextWord[i];
-    }
+    memcpy(g_deviceCracked, threadTextWord, threadWordLength);
+    // for(uint32_t i = 0; i < threadWordLength; i++){
+    //   g_deviceCracked[i] = threadTextWord[i];
+    // }
     return;
   }
   
