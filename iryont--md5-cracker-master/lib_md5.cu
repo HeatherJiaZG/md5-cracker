@@ -24,9 +24,13 @@ __device__ void md5_init(struct md5_context* ctx, unsigned char* data, uint32_t 
 
     int j = 0;
     for(j=0; j < length; j++){
-      ctx->in_arr[j / 4] |= data[j] << ((j % 4) * 8);
+      int s = (j % 4) * 8;
+      uint32_t d = data[j] << s;
+      ctx->in_arr[j / 4] |= d;
     }
-    ctx->in_arr[j / 4] |= 0x80 << ((j % 4) * 8);
+    int s = (j % 4) * 8;
+    uint32_t d = 0x80 << s;
+    ctx->in_arr[j / 4] |= d;
     ctx->in_arr[14] = 0;
     ctx->in_arr[15] = length * 8;
 
