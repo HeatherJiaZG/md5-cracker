@@ -54,7 +54,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, UINT32 hash01, U
   }
   
   /* Increment current word by thread index */
-  next(&threadWordLength, threadCharsetWord, idx);
+  advance_step(&threadWordLength, threadCharsetWord, idx);
 
   char threadTextWord[CONST_WORD_LIMIT];
   for(int i = 0; i < threadWordLength; i++){
@@ -90,7 +90,7 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *resul
   /* Start kernel */
   md5Crack<<<device.max_blocks, device.max_threads>>>(g_wordLength, words, hashBins[0], hashBins[1], hashBins[2], hashBins[3]);
   /* Global increment */
-  *result = next(&g_wordLength, g_word, device.max_threads * device.max_blocks);
+  *result = advance_step(&g_wordLength, g_word, device.max_threads * device.max_blocks);
     
   /* Synchronize now */
   cudaDeviceSynchronize();
@@ -107,10 +107,8 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *resul
   cudaEventCreate(&stop);
   cudaEventRecord(stop, 0); 
   cudaEventSynchronize(stop); 
-  cudaEventElapsedTime( &elapsedTime, start, stop);
-  std::cout << "[DEBUG] elapsedTime = " << elapsedTime << std::endl; 
+  cudaEventElapsedTime( &elapsedTime, start, stop); 
   *time += elapsedTime;
-  std::cout << "[DEBUG] time = " << *time << std::endl; 
 
   return found;
 } 
