@@ -12,7 +12,7 @@
 
 #include "lib_md5.h"
 
-__device__ void md5_init(struct md5_context* ctx, unsigned char* data, uint32_t length) {
+__device__ void md5_init(struct md5_context* ctx, unsigned char* data, UINT32 length) {
     ctx->a = 0x67452301;
     ctx->b = 0xefcdab89;
     ctx->c = 0x98badcfe;
@@ -25,11 +25,11 @@ __device__ void md5_init(struct md5_context* ctx, unsigned char* data, uint32_t 
     int j = 0;
     for(j=0; j < length; j++){
       int s = (j % 4) * 8;
-      uint32_t d = data[j] << s;
+      UINT32 d = data[j] << s;
       ctx->in_arr[j / 4] |= d;
     }
     int s = (j % 4) * 8;
-    uint32_t d = 0x80 << s;
+    UINT32 d = 0x80 << s;
     ctx->in_arr[j / 4] |= d;
     ctx->in_arr[14] = 0;
     ctx->in_arr[15] = length * 8;
@@ -40,25 +40,25 @@ __device__ void md5_init(struct md5_context* ctx, unsigned char* data, uint32_t 
     // ctx->count[3] = 0;
 }
 
-// __device__ void md5_update(struct md5_context* ctx, uint32_t a1, uint32_t b1, uint32_t c1, uint32_t d1) {
+// __device__ void md5_update(struct md5_context* ctx, UINT32 x, UINT32 y, UINT32 k, UINT32 j) {
 
-//     ctx->k[0] = a1;
-//     ctx->j[1] = b1;
-//     ctx->n[2] = c1;
-//     ctx->m[3] = d1;
+//     ctx->k[0] = x;
+//     ctx->j[1] = j;
+//     ctx->n[2] = k;
+//     ctx->m[3] = j;
 // }
 
 __device__ inline void md5Hash(struct md5_context* ctx){
 
-  uint32_t in[16];
+  UINT32 in[16];
   for(int i=0; i<16; i++) {
     in[i] = ctx->in_arr[i];
   }
 
-  uint32_t a = 0;
-  uint32_t b = 0;
-  uint32_t c = 0;
-  uint32_t d = 0;
+  UINT32 a = 0;
+  UINT32 b = 0;
+  UINT32 c = 0;
+  UINT32 d = 0;
 
   //Initialize hash value for this chunk:
   a = ctx->a;

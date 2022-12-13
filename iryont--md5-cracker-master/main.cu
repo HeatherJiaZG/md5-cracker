@@ -37,8 +37,8 @@ struct deviceInfo{
 struct deviceInfo device;
 
 
-__global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01, uint32_t hash02, uint32_t hash03, uint32_t hash04){
-  uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+__global__ void md5Crack(uint8_t wordLength, char* charsetWord, UINT32 hash01, UINT32 hash02, UINT32 hash03, UINT32 hash04){
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
   
   /* Shared variables */
   __shared__ char sharedCharset[CONST_CHARSET_LENGTH];
@@ -47,16 +47,16 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   char threadCharsetWord[CONST_WORD_LIMIT];
   char threadTextWord[CONST_WORD_LIMIT];
   uint8_t threadWordLength = wordLength;
-  uint32_t threadHash01, threadHash02, threadHash03, threadHash04;
+  UINT32 threadHash01, threadHash02, threadHash03, threadHash04;
   
   /* Copy everything to local memory */
   // memcpy(threadCharsetWord, charsetWord, CONST_WORD_LIMIT);
 
-  for(uint32_t i = 0; i < CONST_WORD_LIMIT; i++){
+  for(int i = 0; i < CONST_WORD_LIMIT; i++){
     threadCharsetWord[i] = charsetWord[i];
   }
 
-  for(uint32_t i = 0; i < CONST_CHARSET_LENGTH; i++){
+  for(int i = 0; i < CONST_CHARSET_LENGTH; i++){
     sharedCharset[i] = g_deviceCharset[i];
   }
   
@@ -64,7 +64,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   next(&threadWordLength, threadCharsetWord, idx);
   
 
-  for(uint32_t i = 0; i < threadWordLength; i++){
+  for(int i = 0; i < threadWordLength; i++){
     threadTextWord[i] = sharedCharset[threadCharsetWord[i]];
   }
   
@@ -74,7 +74,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   md5Hash(&context);   
 
   if(context.threadHash[0] == hash01 && context.threadHash[1] == hash02 && context.threadHash[2] == hash03 && context.threadHash[3] == hash04){
-    for(uint32_t i = 0; i < threadWordLength; i++){
+    for(int i = 0; i < threadWordLength; i++){
       g_deviceCracked[i] = threadTextWord[i];
     }
     return;
@@ -83,7 +83,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
 }
 
 
-bool runMD5CUDA(char* words, uint8_t g_wordLength, uint32_t* hashBins, bool *result, int *time) {
+bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *result, int *time) {
   // true: found, false: not found
   bool found = false;
 
@@ -158,7 +158,7 @@ int main(int argc, char* argv[]){
   getOptimalThreads(&device);
 
   /* Hash stored as u32 integers */
-  uint32_t hashBins[4];
+  UINT32 hashBins[4];
   getHashBins(argv[1], hashBins);
   
   

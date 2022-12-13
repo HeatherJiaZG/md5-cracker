@@ -8,10 +8,10 @@ struct md5_context {
     unsigned int c;
     unsigned int d;
 
-    uint32_t in_arr[16];
+    UINT32 in_arr[16];
     // number of bits, modulo 2^64 (lsb first)
     unsigned int count[4];
-    uint32_t threadHash[4];
+    UINT32 threadHash[4];
     // input buffer
     unsigned char input[64];
     // current block
