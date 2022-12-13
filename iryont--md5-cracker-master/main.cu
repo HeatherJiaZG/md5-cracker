@@ -16,34 +16,20 @@
 #include "lib_md5.cu"
 #include "lib_md5.h"
 
-char g_word[CONST_WORD_LIMIT];
-char g_charset[] = "abcdefg";
-char g_cracked[CONST_WORD_LIMIT];
-
-__device__ char g_deviceCharset[CONST_CHARSET_LENGTH];
-__device__ char g_deviceCracked[CONST_WORD_LIMIT];
-
-struct deviceInfo{
-	struct cudaDeviceProp prop; // Device Properties
-	int id; // Device ID
-	int max_threads; // Device max threads per block
-	int max_blocks; // Device max blocks
-	int global_memory_len;
-};
+// char potential_chars[] = "abcdefg";
+// char cur_word[CONST_WORD_LIMIT];
+// char pwd[CONST_WORD_LIMIT];
+// __device__ char pwd_d[CONST_WORD_LIMIT];
+// __device__ char potential_chars_d[CONST_CHARSET_LENGTH];
 
 
-#define REQUIRED_SHARED_MEMORY 64
-#define FUNCTION_PARAM_ALLOC 256
-struct deviceInfo device;
-
-
-__global__ void md5Crack(uint8_t wordLength, char* charsetWord, UINT32 hash01, UINT32 hash02, UINT32 hash03, UINT32 hash04){
+__global__ void md5_cuda(uint8_t wordLength, char* charsetWord, UINT32 hash01, UINT32 hash02, UINT32 hash03, UINT32 hash04){
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   
   /* Shared variables */
   __shared__ char sharedCharset[CONST_CHARSET_LENGTH];
   for(int i = 0; i < CONST_CHARSET_LENGTH; i++){
-    sharedCharset[i] = g_deviceCharset[i];
+    sharedCharset[i] = potential_chars_d[i];
   }
   
   /* Thread variables */
@@ -61,19 +47,20 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, UINT32 hash01, U
     threadTextWord[i] = sharedCharset[threadCharsetWord[i]];
   }
   
-  struct md5_context context;
+  struct md5_states context;
   md5_init(&context, (unsigned char*)threadTextWord, threadWordLength);
-  md5Hash(&context);   
+  md5_run(&context);   
 
-  if(context.threadHash[0] == hash01 && context.threadHash[1] == hash02 && context.threadHash[2] == hash03 && context.threadHash[3] == hash04){
+  if(context.hashes[0] == hash01 && context.hashes[1] == hash02 && context.hashes[2] == hash03 && context.hashes[3] == hash04){
     for(int i = 0; i < threadWordLength; i++){
-      g_deviceCracked[i] = threadTextWord[i];
+      pwd_d[i] = threadTextWord[i];
     }
     return;
   }
   
 }
 
+struct device_info device;
 
 bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *result, float *time) {
   // true: found, false: not found
@@ -86,20 +73,20 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *resul
   cudaEventRecord(start, 0);
 
   /* Copy current data */
-  ERROR_CHECK(cudaMemcpy(words, g_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
+  ERROR_CHECK(cudaMemcpy(words, cur_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
   /* Start kernel */
-  md5Crack<<<device.max_blocks, device.max_threads>>>(g_wordLength, words, hashBins[0], hashBins[1], hashBins[2], hashBins[3]);
+  md5_cuda<<<device.max_blocks, device.max_threads>>>(g_wordLength, words, hashBins[0], hashBins[1], hashBins[2], hashBins[3]);
   /* Global increment */
-  *result = advance_step(&g_wordLength, g_word, device.max_threads * device.max_blocks);
+  *result = advance_step(&g_wordLength, cur_word, device.max_threads * device.max_blocks);
     
   /* Synchronize now */
   cudaDeviceSynchronize();
   /* Copy result */
-  ERROR_CHECK(cudaMemcpyFromSymbol(g_cracked, g_deviceCracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
+  ERROR_CHECK(cudaMemcpyFromSymbol(pwd, pwd_d, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
  
   /* Check result */
-  if(*g_cracked != 0){     
-    std::cout << "Notice: cracked " << g_cracked << std::endl; 
+  if(*pwd != 0){     
+    std::cout << "Notice: cracked " << pwd << std::endl; 
     found = true;
   }
 
@@ -113,10 +100,10 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *resul
   return found;
 } 
 
-void getOptimalThreads(struct deviceInfo * device) {
-	int max_threads = device->prop.maxThreadsPerBlock;
+void getOptimalThreads(struct device_info * device) {
+	int max_threads = device->properties.maxThreadsPerBlock;
 	int max_blocks = 40;
-	int shared_memory = device->prop.sharedMemPerBlock - FUNCTION_PARAM_ALLOC;
+	int shared_memory = device->properties.sharedMemPerBlock - FUNCTION_PARAM_ALLOC;
 	
 	// calculate the most threads that we can support optimally
 	
@@ -127,7 +114,7 @@ void getOptimalThreads(struct deviceInfo * device) {
 
 	// now we need to have (device.max_threads * device.max_blocks) number of words in memory for the graphics card
 	
-	device->global_memory_len = (device->max_threads * device->max_blocks) * 64;
+	device->global_mem = (device->max_threads * device->max_blocks) * 64;
 }
 
 
@@ -138,26 +125,26 @@ int main(int argc, char* argv[]){
   // long fsize = ftell(f);
   // fseek(f, 0, SEEK_SET);
   
-  // char *g_charset = (char *)malloc(fsize + 1);
-  // fread(g_charset, fsize, 1, f);
+  // char *potential_chars = (char *)malloc(fsize + 1);
+  // fread(potential_chars, fsize, 1, f);
   // fclose(f);
-  // g_charset[fsize] = 0;
+  // potential_chars[fsize] = 0;
 
   float totalTime = 0; 
 
   device.id = 0;
-	cudaGetDeviceProperties(&device.prop, device.id);
+	cudaGetDeviceProperties(&device.properties, device.id);
   getOptimalThreads(&device);
 
   /* Hash stored as u32 integers */
   UINT32 hashBins[4];
-  getHashBins(argv[1], hashBins);
+  get_hash_bins(argv[1], hashBins);
   
   
   /* Fill memory */
   for (int i=0; i<CONST_WORD_LIMIT; i++) {
-    g_word[i] = 0;
-    g_cracked[i] = 0;
+    cur_word[i] = 0;
+    pwd[i] = 0;
   }
   
   /* Current word length = minimum word length */
@@ -167,8 +154,8 @@ int main(int argc, char* argv[]){
   char* words;
     
   /* Copy to each device */
-  ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCharset, g_charset, sizeof(uint8_t) * CONST_CHARSET_LENGTH, 0, cudaMemcpyHostToDevice));
-  ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCracked, g_cracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyHostToDevice));
+  ERROR_CHECK(cudaMemcpyToSymbol(potential_chars_d, potential_chars, sizeof(uint8_t) * CONST_CHARSET_LENGTH, 0, cudaMemcpyHostToDevice));
+  ERROR_CHECK(cudaMemcpyToSymbol(pwd_d, pwd, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyHostToDevice));
   
   /* Allocate on each device */
   ERROR_CHECK(cudaMalloc((void**)&words, sizeof(uint8_t) * CONST_WORD_LIMIT));

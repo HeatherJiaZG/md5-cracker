@@ -3,21 +3,14 @@
 
 #include "consts.h"
 
-struct md5_context {
-    // state
+struct md5_states {
     unsigned int a;
     unsigned int b;
     unsigned int c;
     unsigned int d;
 
     UINT32 in_arr[16];
-    // number of bits, modulo 2^64 (lsb first)
-    unsigned int count[4];
-    UINT32 threadHash[4];
-    // input buffer
-    unsigned char input[64];
-    // current block
-    unsigned int block[16];
+    UINT32 hashes[4];
 };
 
 #define ROTATE_LEFT(x, s) (x<<s | x>>(32-s))
