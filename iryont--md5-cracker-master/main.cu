@@ -1,30 +1,23 @@
+#include <stdlib.h>
+#include <stdint.h>
+#include <sstream>
 #include <stdio.h>
 #include <iostream>
 #include <time.h>
 #include <string.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <sstream>
-
-#include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
 #include <curand_kernel.h>
 #include <device_functions.h>
+#include <cuda_runtime.h>
+#include <cuda_runtime_api.h>
 
 #include "consts.h"
 #include "utility.cu"
 #include "lib_md5.cu"
 #include "lib_md5.h"
 
-// char potential_chars[] = "abcdefg";
-// char cur_word[CONST_WORD_LIMIT];
-// char pwd[CONST_WORD_LIMIT];
-// __device__ char pwd_d[CONST_WORD_LIMIT];
-// __device__ char potential_chars_d[CONST_CHARSET_LENGTH];
 
-
-__global__ void md5_cuda(uint8_t wordLength, char* charsetWord, UINT32* hashBins){
-  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+__global__ void md5_cuda(int pwd_len, char* words, UINT32* hashBins){
+  int idx = blockIdx.x*blockDim.x + threadIdx.x;
   bool hash_match = true;
   
   /* Shared variables */
@@ -34,10 +27,10 @@ __global__ void md5_cuda(uint8_t wordLength, char* charsetWord, UINT32* hashBins
   }
   
   /* Thread variables */
-  uint8_t threadWordLength = wordLength;
+  int threadWordLength = pwd_len;
   char threadCharsetWord[CONST_WORD_LIMIT];
   for(int i = 0; i < CONST_WORD_LIMIT; i++){
-    threadCharsetWord[i] = charsetWord[i];
+    threadCharsetWord[i] = words[i];
   }
   
   /* Increment current word by thread index */
@@ -67,7 +60,7 @@ __global__ void md5_cuda(uint8_t wordLength, char* charsetWord, UINT32* hashBins
 
 struct device_info device;
 
-bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *result, float *time) {
+bool runMD5CUDA(char* words, int pwd_len, UINT32* hashBins, bool *result, float *time) {
   // true: found, false: not found
   bool found = false;
   UINT32 *hashBins_d;
@@ -81,16 +74,16 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *resul
   cudaEventRecord(start, 0);
 
   /* Copy current data */
-  ERROR_CHECK(cudaMemcpy(words, cur_word, sizeof(uint8_t) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
+  ERROR_CHECK(cudaMemcpy(words, cur_word, sizeof(int) * CONST_WORD_LIMIT, cudaMemcpyHostToDevice)); 
   /* Start kernel */
-  md5_cuda<<<device.max_blocks, device.max_threads>>>(g_wordLength, words, hashBins_d);
+  md5_cuda<<<device.max_blocks, device.max_threads>>>(pwd_len, words, hashBins_d);
   /* Global increment */
-  *result = advance_step(&g_wordLength, cur_word, device.max_threads * device.max_blocks);
+  *result = advance_step(&pwd_len, cur_word, device.max_threads * device.max_blocks);
     
   /* Synchronize now */
   cudaDeviceSynchronize();
   /* Copy result */
-  ERROR_CHECK(cudaMemcpyFromSymbol(pwd, pwd_d, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
+  ERROR_CHECK(cudaMemcpyFromSymbol(pwd, pwd_d, sizeof(int) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
  
   /* Check result */
   if(*pwd != 0){     
@@ -156,23 +149,23 @@ int main(int argc, char* argv[]){
   }
   
   /* Current word length = minimum word length */
-  uint8_t g_wordLength = 1;
+  int pwd_len = 1;
   
   /* Current word is different on each device */
   char* words;
     
   /* Copy to each device */
-  ERROR_CHECK(cudaMemcpyToSymbol(potential_chars_d, potential_chars, sizeof(uint8_t) * CONST_CHARSET_LENGTH, 0, cudaMemcpyHostToDevice));
-  ERROR_CHECK(cudaMemcpyToSymbol(pwd_d, pwd, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyHostToDevice));
+  ERROR_CHECK(cudaMemcpyToSymbol(potential_chars_d, potential_chars, sizeof(int) * CONST_CHARSET_LENGTH, 0, cudaMemcpyHostToDevice));
+  ERROR_CHECK(cudaMemcpyToSymbol(pwd_d, pwd, sizeof(int) * CONST_WORD_LIMIT, 0, cudaMemcpyHostToDevice));
   
   /* Allocate on each device */
-  ERROR_CHECK(cudaMalloc((void**)&words, sizeof(uint8_t) * CONST_WORD_LIMIT));
+  ERROR_CHECK(cudaMalloc((void**)&words, sizeof(int) * CONST_WORD_LIMIT));
 
   bool result = true;
   bool found = false;
 
   while(result && !found){
-    found = runMD5CUDA(words, g_wordLength, hashBins, &result, &totalTime);
+    found = runMD5CUDA(words, pwd_len, hashBins, &result, &totalTime);
   }
 
   if(!result && !found){
