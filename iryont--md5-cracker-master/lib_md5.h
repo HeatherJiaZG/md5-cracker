@@ -7,6 +7,8 @@ struct md5_context {
     unsigned int b;
     unsigned int c;
     unsigned int d;
+
+    uint32_t in_arr[16];
     // number of bits, modulo 2^64 (lsb first)
     unsigned int count[4];
     uint32_t threadHash[4];
