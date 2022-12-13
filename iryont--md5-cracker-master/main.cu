@@ -75,7 +75,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, UINT32 hash01, U
 }
 
 
-bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *result, int *time) {
+bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *result, float *time) {
   // true: found, false: not found
   bool found = false;
 
@@ -145,7 +145,7 @@ int main(int argc, char* argv[]){
   // fclose(f);
   // g_charset[fsize] = 0;
 
-  int totalTime = 0; 
+  float totalTime = 0; 
 
   device.id = 0;
 	cudaGetDeviceProperties(&device.prop, device.id);
@@ -180,7 +180,6 @@ int main(int argc, char* argv[]){
 
   while(result && !found){
     found = runMD5CUDA(words, g_wordLength, hashBins, &result, &totalTime);
-    std::cout << "[DEBUG] totalTime = " << totalTime << std::endl; 
   }
 
   if(!result && !found){
