@@ -108,8 +108,9 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, UINT32* hashBins, bool *resul
   cudaEventRecord(stop, 0); 
   cudaEventSynchronize(stop); 
   cudaEventElapsedTime( &elapsedTime, start, stop);
-
+  std::cout << "[DEBUG] elapsedTime = " << elapsedTime << std::endl; 
   *time += elapsedTime;
+
   return found;
 } 
 
