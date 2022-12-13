@@ -41,7 +41,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
   
   /* Shared variables */
-  __shared__ char sharedCharset[] = "abcdefg";
+  __shared__ char sharedCharset[CONST_CHARSET_LENGTH];
   
   /* Thread variables */
   char threadCharsetWord[CONST_WORD_LIMIT];
@@ -52,7 +52,7 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   /* Copy everything to local memory */
   memcpy(threadCharsetWord, charsetWord, CONST_WORD_LIMIT);
   memcpy(&threadWordLength, &wordLength, sizeof(uint8_t));
-  // memcpy(sharedCharset, g_deviceCharset, sizeof(uint8_t) * CONST_CHARSET_LENGTH);
+  memcpy(sharedCharset, g_deviceCharset, sizeof(uint8_t) * CONST_CHARSET_LENGTH);
   
   /* Increment current word by thread index */
   next(&threadWordLength, threadCharsetWord, idx);
@@ -68,7 +68,10 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   md5Hash(&context, (unsigned char*)threadTextWord, threadWordLength);   
 
   if(context.threadHash[0] == hash01 && context.threadHash[1] == hash02 && context.threadHash[2] == hash03 && context.threadHash[3] == hash04){
-    memcpy(g_deviceCracked, threadTextWord, threadWordLength);
+    for(uint32_t i = 0; i < threadWordLength; i++){
+      g_deviceCracked[i] = threadTextWord[i];
+    }
+    // memcpy(g_deviceCracked, threadTextWord, threadWordLength);
   }
   
 }
