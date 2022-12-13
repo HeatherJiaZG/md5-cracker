@@ -46,12 +46,12 @@ __global__ void md5Crack(uint8_t wordLength, char* charsetWord, uint32_t hash01,
   /* Thread variables */
   char threadCharsetWord[CONST_WORD_LIMIT];
   char threadTextWord[CONST_WORD_LIMIT];
-  uint8_t threadWordLength;
+  uint8_t threadWordLength = wordLength;
   uint32_t threadHash01, threadHash02, threadHash03, threadHash04;
   
   /* Copy everything to local memory */
   memcpy(threadCharsetWord, charsetWord, CONST_WORD_LIMIT);
-  memcpy(&threadWordLength, &wordLength, sizeof(uint8_t));
+  // memcpy(&threadWordLength, &wordLength, sizeof(uint8_t));
   memcpy(sharedCharset, g_deviceCharset, sizeof(uint8_t) * CONST_CHARSET_LENGTH);
   
   /* Increment current word by thread index */
