@@ -25,6 +25,7 @@
 
 __global__ void md5_cuda(uint8_t wordLength, char* charsetWord, UINT32* hashBins){
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  bool hash_match = true;
   
   /* Shared variables */
   __shared__ char sharedCharset[CONST_CHARSET_LENGTH];
@@ -51,7 +52,11 @@ __global__ void md5_cuda(uint8_t wordLength, char* charsetWord, UINT32* hashBins
   md5_init(&context, (unsigned char*)threadTextWord, threadWordLength);
   md5_run(&context);   
 
-  if(context.hashes[0] == hashBins[0] && context.hashes[1] == hashBins[1] && context.hashes[2] == hashBins[2] && context.hashes[3] == hashBins[3]){
+  for(int i = 0; i < threadWordLength; i++){
+    bool current_match = context.hashes[i] == hashBins[i];
+    hash_match = hash_match && current_match;
+  }
+  if(hash_match){
     for(int i = 0; i < threadWordLength; i++){
       pwd_d[i] = threadTextWord[i];
     }
