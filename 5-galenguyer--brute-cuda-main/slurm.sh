@@ -11,4 +11,5 @@ module load nvidia/cuda
 
 make
 
-./brute
+./brute bae60998ffe4923b131e3d6e4c19993e
+

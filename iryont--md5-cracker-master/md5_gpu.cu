@@ -94,7 +94,7 @@ bool runMD5CUDA(char* words, uint8_t g_wordLength, uint32_t* hashBins, bool *res
   /* Synchronize now */
   cudaDeviceSynchronize();
   /* Copy result */
-  ERROR_CHECK(cudaMemcpyFromSymbol(g_cracked, g_deviceCracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
+  ERROR_CHECK(cudaMemcpy(g_cracked, g_deviceCracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyDeviceToHost)); 
  
   /* Check result */
   if(*g_cracked != 0){     
