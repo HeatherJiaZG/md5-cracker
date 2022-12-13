@@ -19,7 +19,7 @@ struct md5_context {
 
 /* F, G and H are basic MD5 functions: selection, majority, parity */
 #define F(x, y, z) (z ^ (x & (y ^ z)))
-#define G(x, y, z) (((x) & (z)) | ((y) & (~z)))
+#define G(x, y, z) (y ^ (z & (x ^ y)))
 #define H(x, y, z) ((x) ^ (y) ^ (z))
 #define I(x, y, z) ((y) ^ ((x) | (~z)))
 
