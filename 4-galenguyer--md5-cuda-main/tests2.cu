@@ -127,12 +127,13 @@ int main(int argc, char *argv[]) {
 
     int n = 1; // password length
     std::string result = "";
+    std::string current_pwd;
 
     char arr[] = { '0', '1', '2', '3' };
     int len = sizeof(arr) / sizeof(arr[0]);
     for (int i = 0; i < (int)pow(len, n); i++) {
         current_pwd = getCurrentPwd(i, arr, len, n);
-        if (strcmp(target, md5_hash(current_pwd).c_str()) == 0) {
+        if (strcmp(target, md5_hash(current_pwd.c_str()).c_str()) == 0) {
             result = current_pwd
             break;
         }
