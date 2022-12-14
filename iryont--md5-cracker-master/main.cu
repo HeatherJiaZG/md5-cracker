@@ -153,6 +153,7 @@ int main(int argc, char* argv[]){
   ERROR_CHECK(cudaMemcpyToSymbol(potential_chars_d, potential_chars, sizeof(uint8_t) * CHARS_LEN, 0, cudaMemcpyHostToDevice));
   ERROR_CHECK(cudaMemcpyToSymbol(pwd_d, pwd, sizeof(uint8_t) * MAX_PWD_LENGTH, 0, cudaMemcpyHostToDevice));
 
+  std::cout << "------------ Start Cracking ------------\n";
   while(result && !found){
     found = runMD5CUDA(words, pwd_len, hash_bins, &result, &total_time);
   }
