@@ -101,12 +101,13 @@ bool runMD5CUDA(char* words, uint8_t pwd_len, UINT32* hashBins, bool *result, fl
 
 void get_optimal_threads(struct device_info * device) {
   int max_blocks = 40;
+  int shared_mem_size = 64;
 	int max_threads = device->properties.maxThreadsPerBlock;
 	int shared_memory = device->properties.sharedMemPerBlock - FUNCTION_PARAM_ALLOC;
 	
 	// calculate the most threads that we can support optimally
 	
-	while ((shared_memory / max_threads) < REQUIRED_SHARED_MEMORY) {
+	while ((shared_memory / max_threads) < shared_mem_size) {
     max_threads--; 
   } 	
 
