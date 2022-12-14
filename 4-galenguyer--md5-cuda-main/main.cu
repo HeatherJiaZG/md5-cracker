@@ -101,6 +101,29 @@ int main() {
 	cudaGetDeviceProperties(&device.prop, device.id);
     getOptimalThreads(&device);
 
+    int passed = 0, failed = 0;
+
+    // run_test("md5(\"\")", hash(""), "d41d8cd98f00b204e9800998ecf8427e") ? passed++ : failed++;
+    // run_test("md5(\"a\")", hash("a"), "0cc175b9c0f1b6a831c399e269772661") ? passed++ : failed++;
+    // run_test("md5(\"abc\")", md5_hash("abc"), "900150983cd24fb0d6963f7d28e17f72") ? passed++ : failed++;
+
+    // run_test("md5(\"ba\")", md5_hash("1998012"), "de8be12caf23444b451ea27be98dc8a9") ? passed++ : failed++;
+    
+    // run_test("md5(\"message digest\")", hash("message digest"), "f96b697d7cb7938d525a2f31aaf161d0") ? passed++ : failed++;
+    // run_test("md5(\"abcdefghijklmnopqrstuvwxyz\")", \
+    //     hash("abcdefghijklmnopqrstuvwxyz"), \
+    //     "c3fcd3d76192e4007dfb496cca67e13b") ? passed++ : failed++;
+    // run_test("md5(\"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\")", \
+    //     hash("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"), \
+    //     "d174ab98d277d9f5a5611c2c9f419d9f") ? passed++ : failed++;
+    // run_test("md5(\"12345678901234567890123456789012345678901234567890123456789012345678901234567890\")", \
+    //     hash("12345678901234567890123456789012345678901234567890123456789012345678901234567890"), \
+    //     "57edf4a22be3c955ac49da2e2107b67a") ? passed++ : failed++;
+
+    printf("Tests Passed: %i\n", passed);
+    printf("Tests Failed: %i\n", failed);
+
+
 
     int len = 2;
     char str[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};

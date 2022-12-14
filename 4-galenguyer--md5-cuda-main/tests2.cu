@@ -2,9 +2,10 @@
 #include <stdint.h>
 #include <string.h>
 #include "md5.cu"
-
-#include <string>
 #include <iostream>
+#include <string>
+
+#include <bits/stdc++.h>
 
 struct deviceInfo{
 	struct cudaDeviceProp prop; // Device Properties
@@ -76,7 +77,7 @@ int run_test(const char* name, const char* result, const char* expected) {
     }
 }
 
-char *target = "de8be12caf23444b451ea27be98dc8a9";
+char *target = "c4ca4238a0b923820dcc509a6f75849b";
 
 void print_str(const char str[],std::string prefix,const int n, const int lenght) {
     if (lenght == 1) {
@@ -94,19 +95,49 @@ void print_str(const char str[],std::string prefix,const int n, const int lenght
 }
 
 
-int main() {
+// int main() {
+// 	// Set device id to 0 (Use fastest device)
+// 	device.id = 0;
+// 	cudaGetDeviceProperties(&device.prop, device.id);
+//     getOptimalThreads(&device);
+//     int len = 2;
+//     char str[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+//     int n = sizeof(str);
+//     print_str(str, "", n, len);
+//     return failed;
+// }
+/////////////////
+ 
 
-	// Set device id to 0 (Use fastest device)
-	device.id = 0;
+std::string getCurrentPwd(int i, char arr[], int len, int n)
+{
+    std::string result = "";
+    for (int j = 0; j < n; j++) {
+        result += arr[i % len];
+        i /= len;
+    }
+    return result;
+}
+
+int main(int argc, char *argv[]) {
+
+    device.id = 0;
 	cudaGetDeviceProperties(&device.prop, device.id);
     getOptimalThreads(&device);
 
+    int n = stoi(argv[1]); // password length
+    std::string target = argv[2]; // target hash
+    // std::string potential_elements = "0123456789";
+    std::string result = "";
 
-    int len = 2;
-    char str[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-    int n = sizeof(str);
-    print_str(str, "", n, len);
-
-
-    return failed;
+    char arr[] = { '0', '1', '2', '3' };
+    int len = sizeof(arr) / sizeof(arr[0]);
+    for (int i = 0; i < (int)pow(len, n); i++) {
+        current_pwd = getCurrentPwd(i, arr, len, n);
+        if (strcmp(target, md5_hash(current_pwd).c_str()) == 0) {
+            result = current_pwd
+            break;
+        }
+    }
+    std::cout << result << std::endl;
 }
