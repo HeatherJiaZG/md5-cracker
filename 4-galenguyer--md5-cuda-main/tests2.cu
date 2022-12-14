@@ -129,15 +129,20 @@ int main(int argc, char *argv[]) {
     std::string result = "";
     std::string current_pwd;
 
-    // char arr[] = { '0', '1', '2', '3' };
-    // int len = sizeof(arr) / sizeof(arr[0]);
-    // for (int i = 0; i < (int)pow(len, n); i++) {
+    char arr[] = { '0', '1', '2', '3' };
+    int len = sizeof(arr) / sizeof(arr[0]);
+
+    int pow = 1;
+    for(int i=0; i<n; i++)
+        pow *= len;
+
+    for (int i = 0; i < pow; i++) {
     //     current_pwd = getCurrentPwd(i, arr, len, n);
     //     char *computed_hash = md5_hash(current_pwd.c_str());
     //     if (strcmp(target, computed_hash) == 0) {
     //         result = current_pwd;
     //         break;
     //     }
-    // }
+    }
     // std::cout << result << std::endl;
 }
