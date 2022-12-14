@@ -133,7 +133,8 @@ int main(int argc, char *argv[]) {
     int len = sizeof(arr) / sizeof(arr[0]);
     for (int i = 0; i < (int)pow(len, n); i++) {
         current_pwd = getCurrentPwd(i, arr, len, n);
-        if (strcmp(target, md5_hash(current_pwd.c_str()).c_str()) == 0) {
+        char *computed_hash = md5_hash(current_pwd.c_str());
+        if (strcmp(target, computed_hash) == 0) {
             result = current_pwd
             break;
         }
