@@ -8,7 +8,7 @@
 
 module load nvidia/cuda gcc/9.4.0
 
-g++ ./src/md5.cpp ./test/test.cpp -Wall -O3 -std=c++17 -o md5_test -fopenmp
+g++ ./src/md5.cpp ./test_o/test_omp.cpp -Wall -O3 -std=c++17 -o md5_test_o -fopenmp
 
-./md5_test
+./md5_test_o 2 c20ad4d76fe97759aa27a0c99bff6710
 

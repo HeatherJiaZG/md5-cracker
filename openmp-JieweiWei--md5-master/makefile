@@ -1,7 +1,7 @@
 SRC_DIR = ./src
-TEST_DIR = ./test
+TEST_DIR = ./test_p
 OBJ = md5.o test.o
-EXE = md5_test
+EXE = md5_test_p
 CC = g++
 
 

@@ -10,5 +10,5 @@ module load nvidia/cuda gcc/9.4.0
 
 make
 
-./md5_test 2 c20ad4d76fe97759aa27a0c99bff6710
+./md5_test_p 2 c20ad4d76fe97759aa27a0c99bff6710
 

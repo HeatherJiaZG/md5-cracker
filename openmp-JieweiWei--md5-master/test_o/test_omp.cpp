@@ -13,12 +13,16 @@
 #include <string>
 #include <bits/stdc++.h>
 #include <chrono>
+#include <omp.h>
 
 using std::cout;
 using std::endl;
 
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
+
+char chars[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
 
 void printMD5(const string& message) {
   cout << "md5(\"" << message << "\") = "
@@ -34,9 +38,25 @@ std::string getCurrentPwd(int i, char chars[], int len, int n)
     }
     return result;
 }
+
+std::string crack(int len, int n, std::string target) {
+    std::string result = "";
+
+    #pragma omp for
+    for (int i = 0; i < (int)pow(len, n); i++) {
+        std::string current_pwd = getCurrentPwd(i, chars, len, n);
+        if (target == MD5(current_pwd).toStr()) {
+            result = current_pwd;
+            break;
+        }
+    }
+    return result;
+}
+
 int main(int argc, char *argv[]) {
   int n = std::stoi(argv[1]); // password length
   std::string target = argv[2]; // target hash
+  int len = sizeof(chars) / sizeof(chars[0]);
   std::string result = "";
 
   cout << "target = " << target << endl;
@@ -46,22 +66,13 @@ int main(int argc, char *argv[]) {
   duration<double, std::milli> duration_sec;
   start = high_resolution_clock::now();
 
-  char chars[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-  int len = sizeof(chars) / sizeof(chars[0]);
-  
-  for (int i = 0; i < (int)pow(len, n); i++) {
-      std::string current_pwd = getCurrentPwd(i, chars, len, n);
-      if (target == MD5(current_pwd).toStr()) {
-          result = current_pwd;
-          break;
-      }
-  }
+  result = crack(len, n, target);
 
   end = high_resolution_clock::now();
   duration_sec = std::chrono::duration_cast<duration<double, std::milli>>(end - start);
 
   cout << "password is: " << result << endl;
-  cout << duration_sec.count() << endl;
+  cout << "Time spent: " << duration_sec.count() << " ms" << endl;
 
 	return 0;
 }
