@@ -44,7 +44,6 @@ std::string crack(int len, int n, std::string target) {
         std::string current_pwd = getCurrentPwd(i, chars, len, n);
         if (target == MD5(current_pwd).toStr()) {
             result = current_pwd;
-            break;
         }
     }
     return result;
