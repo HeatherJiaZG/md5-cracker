@@ -1,2 +1,2 @@
 tests: 
-	nvcc tests.cu 
+	nvcc tests2.cu 

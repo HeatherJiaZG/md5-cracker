@@ -125,9 +125,7 @@ int main(int argc, char *argv[]) {
 	cudaGetDeviceProperties(&device.prop, device.id);
     getOptimalThreads(&device);
 
-    int n = stoi(argv[1]); // password length
-    std::string target = argv[2]; // target hash
-    // std::string potential_elements = "0123456789";
+    int n = 1; // password length
     std::string result = "";
 
     char arr[] = { '0', '1', '2', '3' };
