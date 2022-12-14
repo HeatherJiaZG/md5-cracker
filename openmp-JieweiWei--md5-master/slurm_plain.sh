@@ -5,9 +5,8 @@
 #SBATCH --nodes=1 --cpus-per-task=20
 #SBATCH --time=00-00:00:10
 #SBATCH -o out.out -e err.err
-
 module load nvidia/cuda gcc/9.4.0
-
 make
+./md5_test
 
-./md5_test 
+
