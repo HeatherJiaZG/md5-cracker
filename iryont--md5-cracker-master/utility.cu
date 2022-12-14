@@ -38,7 +38,7 @@ void get_hash_bins(char* target, UINT32* hashes) {
 __device__ __host__ bool advance_step(uint8_t* len, char* word, UINT32 advance){
   int i = 0;
   UINT32 plus = 0;
-  for (i = 0; i<CONST_WORD_LIMIT; i ++) {
+  for (i = 0; i<MAX_PWD_LENGTH; i ++) {
     if (advance <= 0) {
       break;
     }
@@ -46,8 +46,8 @@ __device__ __host__ bool advance_step(uint8_t* len, char* word, UINT32 advance){
       advance--;
     }
     plus = advance + word[i];
-    word[i] = plus % CONST_CHARSET_LENGTH;
-    advance = plus / CONST_CHARSET_LENGTH;
+    word[i] = plus % CHARS_LEN;
+    advance = plus / CHARS_LEN;
   }
 
   if (i > *len){

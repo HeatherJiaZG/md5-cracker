@@ -66,6 +66,7 @@ __device__ inline void md5_run(struct md5_states* ctx){
   c = ctx->c;
   d = ctx->d;
 
+  // go through 4 rounds
   FF ( a, b, c, d, in[0],  7, 3614090360); 
   FF ( d, a, b, c, in[1],  12, 3905402710); 
   FF ( c, d, a, b, in[2],  17,  606105819); 
