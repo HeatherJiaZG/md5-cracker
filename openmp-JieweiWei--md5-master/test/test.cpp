@@ -21,8 +21,17 @@ void printMD5(const string& message) {
        << MD5(message).toStr() << endl;
 }
 
-int main() {
-  int n = stoi(argv[1]); // password length
+std::string getCurrentPwd(int i, char chars[], int len, int n)
+{
+    std::string result = "";
+    for (int j = 0; j < n; j++) {
+        result += chars[i % len];
+        i /= len;
+    }
+    return result;
+}
+int main(int argc, char *argv[]) {
+  int n = std::stoi(argv[1]); // password length
   std::string target = argv[2]; // target hash
   std::string result = "";
 
