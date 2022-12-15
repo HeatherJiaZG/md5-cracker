@@ -25,6 +25,4 @@ char potential_chars[] = "abcdefg";
 char cur_word[MAX_PWD_LENGTH];
 char pwd[MAX_PWD_LENGTH];
 
-#define ERROR_CHECK(X) { gpuAssert((X), __FILE__, __LINE__); }
-
 #endif

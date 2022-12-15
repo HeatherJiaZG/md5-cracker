@@ -8,15 +8,6 @@
 
 #include "consts.h"
 
-inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort = true){
-  if(code != cudaSuccess){
-    std::cout << "Error: " << cudaGetErrorString(code) << " " << file << " " << line << std::endl;
-    if(abort){
-      exit(code);
-    }
-  }
-}
-
 void get_hash_bins(char* target, UINT32* hashes) {
   for(int i = 0; i < 4; i++){
     char arr[16];

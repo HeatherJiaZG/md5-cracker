@@ -9,6 +9,7 @@
 
 module load nvidia/cuda
 
-make
+nvcc -g -O3 main.cu -o main
 
-./main bae60998ffe4923b131e3d6e4c19993e
+./main 187ef4436122d1cc2f40dc2b92f0eba0
+
