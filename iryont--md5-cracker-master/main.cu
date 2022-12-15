@@ -12,8 +12,9 @@
 
 #include "consts.h"
 #include "utility.cu"
+#include "lib_md5.cu"
 #include "lib_md5.h"
-#include "run_md5.cu"
+
 
 // __global__ void md5_cuda(uint8_t pwd_len, char* words, UINT32* hashBins){
 //   int idx = blockIdx.x*blockDim.x + threadIdx.x;

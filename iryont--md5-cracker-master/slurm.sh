@@ -12,4 +12,3 @@ module load nvidia/cuda
 nvcc -g -O3 main.cu -o main
 
 ./main 187ef4436122d1cc2f40dc2b92f0eba0
-
