@@ -12,7 +12,6 @@
 
 #include "consts.h"
 #include "utility.cu"
-#include "lib_md5.cu"
 #include "lib_md5.h"
 #include "run_md5.cu"
 
