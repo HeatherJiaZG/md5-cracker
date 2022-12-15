@@ -11,9 +11,32 @@
 #include <cuda_runtime_api.h>
 
 #include "consts.h"
-#include "utility.cu"
 #include "lib_md5.cu"
 #include "lib_md5.h"
+
+__device__ __host__ bool advance_step(uint8_t* len, char* word, UINT32 advance){
+  int i = 0;
+  UINT32 plus = 0;
+  for (i = 0; i<MAX_PWD_LENGTH; i ++) {
+    if (advance <= 0) {
+      break;
+    }
+    if(i >= *len && advance > 0){
+      advance--;
+    }
+    plus = advance + word[i];
+    word[i] = plus % CHARS_LEN;
+    advance = plus / CHARS_LEN;
+  }
+
+  if (i > *len){
+    *len = i;
+  }
+  if (i>CONST_WORD_LENGTH_MAX){
+    return false;
+  }
+  return true;
+}
 
 
 __global__ void md5_cuda(uint8_t pwd_len, char* words, UINT32* hashBins){
